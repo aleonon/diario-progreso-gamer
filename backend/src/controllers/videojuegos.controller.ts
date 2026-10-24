@@ -119,3 +119,21 @@ export const eliminar = async (
         next(error);
     }
 };
+
+
+// GET /api/videojuegos/:id/resumen
+export const resumen = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const datos = await service.calcularResumen(
+      String(req.params.id)
+    );
+
+    res.status(200).json(datos);
+  } catch (error) {
+    next(error);
+  }
+};

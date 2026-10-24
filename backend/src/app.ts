@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 
 import videojuegosRoutes from "./routes/videojuegos.routes.js";
+import partidasRoutes from "./routes/partidas.routes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
@@ -20,6 +21,8 @@ app.get("/", (_req, res) => {
 
 // Rutas de videojuegos
 app.use("/api/videojuegos", videojuegosRoutes);
+
+app.use("/api/partidas", partidasRoutes);
 
 // Middleware de errores: siempre al final
 app.use(errorHandler);

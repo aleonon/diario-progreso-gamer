@@ -2,6 +2,8 @@
 import mongoose from "mongoose";
 //por el formato en from "../" son dos puntos, no tres
 import { Videojuego } from "../models/videojuego.js";
+import { Partida } from "../models/partida.js";
+
 
 export class VideojuegoNoEncontrado extends Error {
   constructor() {
@@ -102,4 +104,49 @@ export const eliminarVideojuego = async (
   }
 
   return videojuego;
+};
+
+// GET: resumen de progreso
+export const calcularResumen = async (
+  videojuegoId: string
+) => {
+  validarId(videojuegoId);
+
+  // Comprobar que el videojuego exista
+  const videojuego = await Videojuego.findById(
+    videojuegoId
+  );
+
+  if (!videojuego) {
+    throw new VideojuegoNoEncontrado();
+  }
+
+  // Obtener las sesiones de la más nueva a la más antigua
+  const partidas = await Partida.find({
+    videojuego: videojuegoId
+  }).sort({ fecha: -1, _id: -1 });
+
+  // Cantidad total
+  const cantidadPartidas = partidas.length;
+
+  // Sumar minutos de todas las sesiones
+  const minutosTotales = partidas.reduce(
+    (total, partida) =>
+      total + partida.duracionMinutos,
+    0
+  );
+
+  const horasTotales = minutosTotales / 60;
+
+  // La primera partida es la más reciente
+  const ultimaPartida = partidas[0];
+
+  return {
+    videojuegoId,
+    cantidadPartidas,
+    horasTotales,
+    ultimaSesion: ultimaPartida?.fecha ?? null,
+    porcentajeAvance:
+      ultimaPartida?.porcentajeAvance ?? 0
+  };
 };
