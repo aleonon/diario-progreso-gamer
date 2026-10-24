@@ -2,37 +2,43 @@
 import { Schema, model } from "mongoose";
 
 const partidaSchema = new Schema(
-  {
-    videojuego: {
-      type: Schema.Types.ObjectId,
-      ref: "Videojuego",
-      required: true
-    },
+    {
+        videojuego: {
+            type: Schema.Types.ObjectId,
+            ref: "Videojuego",
+            required: true
+        },
 
-    fecha: {
-      type: Date,
-      required: true
-    },
+        fecha: {
+            type: Date,
+            required: true
+        },
 
-    duracionMinutos: {
-      type: Number,
-      required: true,
-      min: 1
-    },
 
-    porcentajeAvance: {
-      type: Number,
-      required: true,
-      min: 0,
-      max: 100
+        duracionMinutos: {
+            type: Number,
+            required: true,
+            min: 1,
+            validate: {
+                validator: Number.isInteger,
+                message: "La duración debe ser un número entero"
+            }
+        },
+
+        porcentajeAvance: {
+            type: Number,
+            required: true,
+            min: 0,
+            max: 100
+        }
+
+    },
+    {
+        timestamps: true
     }
-  },
-  {
-    timestamps: true
-  }
 );
 
 export const Partida = model(
-  "Partida",
-  partidaSchema
+    "Partida",
+    partidaSchema
 );

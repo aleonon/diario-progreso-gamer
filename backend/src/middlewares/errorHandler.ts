@@ -13,8 +13,13 @@ import {
 } from "../services/videojuegos.service.js";
 
 import {
+    DatosPartidaInvalidos,
     PartidaNoEncontrada
 } from "../services/partidas.service.js";
+
+import {
+    VideojuegoConPartidas
+} from "../services/videojuegos.service.js";
 
 export const errorHandler = (
     error: unknown,
@@ -56,6 +61,19 @@ export const errorHandler = (
         return;
     }
 
+    if (error instanceof VideojuegoConPartidas) {
+        res.status(409).json({
+            mensaje: error.message
+        });
+        return;
+    }
+
+    if (error instanceof DatosPartidaInvalidos) {
+        res.status(400).json({
+            mensaje: error.message
+        });
+        return;
+    }
 
     res.status(500).json({
         mensaje: "Error interno del servidor"
