@@ -28,6 +28,22 @@ export class VideojuegoConPartidas extends Error {
     }
 }
 
+export class LogroNoEncontrado extends Error {
+    constructor() {
+        super("Logro no encontrado");
+        this.name = "LogroNoEncontrado";
+    }
+}
+
+export class DatosLogroInvalidos extends Error {
+  constructor() {
+    super(
+      "El campo obtenido debe ser verdadero o falso"
+    );
+    this.name = "DatosLogroInvalidos";
+  }
+}
+
 const validarId = (id: string) => {
     if (!mongoose.isObjectIdOrHexString(id)) {
         throw new IdInvalido();
@@ -172,3 +188,53 @@ export const calcularResumen = async (
             ultimaPartida?.porcentajeAvance ?? 0
     };
 };
+
+//ACTUALIZAR LOGRO
+
+export const actualizarLogro = async (
+    videojuegoId: string,
+    logroId: string,
+    obtenido: unknown
+) => {
+    // Validar identificadores
+    validarId(videojuegoId);
+    validarId(logroId);
+
+    // Solo aceptamos un valor booleano
+    if (typeof obtenido !== "boolean") {
+        throw new DatosLogroInvalidos();
+    }
+
+    // Comprobar que exista el videojuego
+    const videojuego = await Videojuego.findById(
+        videojuegoId
+    );
+
+    if (!videojuego) {
+        throw new VideojuegoNoEncontrado();
+    }
+
+    // Actualizar exclusivamente el logro indicado
+    const actualizado = await Videojuego.findOneAndUpdate(
+        {
+            _id: videojuegoId,
+            "logros._id": logroId
+        },
+        {
+            $set: {
+                "logros.$.obtenido": obtenido
+            }
+        },
+        {
+            new: true,
+            runValidators: true
+        }
+    );
+
+    if (!actualizado) {
+        throw new LogroNoEncontrado();
+    }
+
+    return actualizado;
+};
+

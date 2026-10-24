@@ -1,82 +1,91 @@
 
 import type {
-    Request,
-    Response,
-    NextFunction
+  Request,
+  Response,
+  NextFunction
 } from "express";
 
 import mongoose from "mongoose";
 
 import {
-    IdInvalido,
-    VideojuegoNoEncontrado
+  IdInvalido,
+  VideojuegoNoEncontrado,
+  VideojuegoConPartidas,
+  LogroNoEncontrado,
+  DatosLogroInvalidos
 } from "../services/videojuegos.service.js";
 
 import {
-    DatosPartidaInvalidos,
-    PartidaNoEncontrada
+  PartidaNoEncontrada,
+  DatosPartidaInvalidos
 } from "../services/partidas.service.js";
 
-import {
-    VideojuegoConPartidas
-} from "../services/videojuegos.service.js";
-
 export const errorHandler = (
-    error: unknown,
-    _req: Request,
-    res: Response,
-    _next: NextFunction
-) => {
-    if (error instanceof IdInvalido) {
-        res.status(400).json({
-            mensaje: error.message
-        });
-        return;
-    }
+  error: unknown,
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+): void => {
+  const requestId = res.locals.requestId;
 
-    if (error instanceof VideojuegoNoEncontrado) {
-        res.status(404).json({
-            mensaje: error.message
-        });
-        return;
-    }
-
-    if (
-        error instanceof mongoose.Error.ValidationError ||
-        error instanceof mongoose.Error.CastError
-    ) {
-        res.status(400).json({
-            mensaje: "Datos inválidos",
-            detalle: error.message
-        });
-        return;
-    }
-
-    console.error("Error inesperado:", error);
-
-    if (error instanceof PartidaNoEncontrada) {
-        res.status(404).json({
-            mensaje: error.message
-        });
-        return;
-    }
-
-    if (error instanceof VideojuegoConPartidas) {
-        res.status(409).json({
-            mensaje: error.message
-        });
-        return;
-    }
-
-    if (error instanceof DatosPartidaInvalidos) {
-        res.status(400).json({
-            mensaje: error.message
-        });
-        return;
-    }
-
-    res.status(500).json({
-        mensaje: "Error interno del servidor"
+  // ID con formato inválido
+  if (error instanceof IdInvalido) {
+    res.status(400).json({
+      mensaje: error.message,
+      requestId
     });
+    return;
+  }
+
+  // Validaciones de datos
+  if (
+    error instanceof DatosPartidaInvalidos ||
+    error instanceof DatosLogroInvalidos ||
+    error instanceof mongoose.Error.ValidationError ||
+    error instanceof mongoose.Error.CastError ||
+    error instanceof SyntaxError &&
+      "body" in error
+  ) {
+    res.status(400).json({
+      mensaje: error instanceof Error
+        ? error.message
+        : "Solicitud inválida",
+      requestId
+    });
+    return;
+  }
+
+  // Recursos inexistentes
+  if (
+    error instanceof VideojuegoNoEncontrado ||
+    error instanceof PartidaNoEncontrada ||
+    error instanceof LogroNoEncontrado
+  ) {
+    res.status(404).json({
+      mensaje: error.message,
+      requestId
+    });
+    return;
+  }
+
+  // Integridad referencial
+  if (error instanceof VideojuegoConPartidas) {
+    res.status(409).json({
+      mensaje: error.message,
+      requestId
+    });
+    return;
+  }
+
+  // Error inesperado
+  console.error(
+    `[${requestId}] Error inesperado:`,
+    error
+  );
+
+  res.status(500).json({
+    mensaje: "Error interno del servidor",
+    requestId
+  });
 };
 

@@ -28,5 +28,10 @@ router.get(
   controller.resumen
 );
 
+router.patch(
+  "/:id/logros/:logroId",
+  controller.actualizarLogro
+);
+
 
 export default router;

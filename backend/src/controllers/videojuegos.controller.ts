@@ -137,3 +137,40 @@ export const resumen = async (
     next(error);
   }
 };
+
+export const actualizarLogro = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id, logroId } = req.params;
+
+    const datos = req.body;
+
+    if (
+      !datos ||
+      typeof datos !== "object" ||
+      Array.isArray(datos) ||
+      Object.keys(datos).some(
+        campo => campo !== "obtenido"
+      )
+    ) {
+      res.status(400).json({
+        mensaje: "Solo se permite el campo obtenido"
+      });
+      return;
+    }
+
+    const videojuego =
+      await service.actualizarLogro(
+        String(id),
+        String(logroId),
+        datos.obtenido
+      );
+
+    res.status(200).json(videojuego);
+  } catch (error) {
+    next(error);
+  }
+};

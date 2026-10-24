@@ -13,6 +13,7 @@ La aplicación busca responder tres preguntas principales:
 ## 2. Tecnologías utilizadas
 
 **Backend**
+
 - Node.js
 - Express
 - TypeScript
@@ -20,6 +21,7 @@ La aplicación busca responder tres preguntas principales:
 - MongoDB Atlas
 
 **Frontend**
+
 - React
 - TypeScript
 - Vite
@@ -81,11 +83,11 @@ La partida más reciente se determina ordenando por fecha descendente y, si dos 
 
 Se registran tres partidas:
 
-| Partida | Duración | Avance |
-|---|---|---|
-| 1 | 60 minutos | 20% |
-| 2 | 90 minutos | 45% |
-| 3 | 120 minutos | 70% |
+| Partida | Duración    | Avance |
+| ------- | ----------- | ------ |
+| 1       | 60 minutos  | 20%    |
+| 2       | 90 minutos  | 45%    |
+| 3       | 120 minutos | 70%    |
 
 El resumen calculado será:
 
@@ -112,22 +114,22 @@ La URL base local es `http://localhost:3000`. Todas las rutas de la API aceptan 
 
 ### Verificar el servidor
 
-| Método | Ruta | Resultado |
-|---|---|---|
-| `GET` | `/` | Devuelve un mensaje que confirma que la API está funcionando. |
+| Método | Ruta | Resultado                                                     |
+| ------ | ---- | ------------------------------------------------------------- |
+| `GET`  | `/`  | Devuelve un mensaje que confirma que la API está funcionando. |
 
 ### Videojuegos
 
-| Método | Ruta | Resultado |
-|---|---|---|
-| `GET` | `/api/videojuegos` | Lista todos los videojuegos. |
-| `GET` | `/api/videojuegos?estado=jugando` | Filtra por estado. Valores permitidos: `jugando`, `pausado`, `completado`, `abandonado`. |
-| `GET` | `/api/videojuegos/:id` | Devuelve un videojuego por su ID. |
-| `POST` | `/api/videojuegos` | Crea un videojuego y devuelve el documento creado (`201`). |
-| `PUT` | `/api/videojuegos/:id` | Actualiza un videojuego y devuelve el documento actualizado. |
-| `DELETE` | `/api/videojuegos/:id` | Elimina un videojuego (`204`, sin cuerpo). |
-| `GET` | `/api/videojuegos/:id/partidas` | Lista las partidas del videojuego, de la más reciente a la más antigua. |
-| `GET` | `/api/videojuegos/:id/resumen` | Devuelve el resumen calculado de partidas del videojuego. |
+| Método   | Ruta                              | Resultado                                                                                |
+| -------- | --------------------------------- | ---------------------------------------------------------------------------------------- |
+| `GET`    | `/api/videojuegos`                | Lista todos los videojuegos.                                                             |
+| `GET`    | `/api/videojuegos?estado=jugando` | Filtra por estado. Valores permitidos: `jugando`, `pausado`, `completado`, `abandonado`. |
+| `GET`    | `/api/videojuegos/:id`            | Devuelve un videojuego por su ID.                                                        |
+| `POST`   | `/api/videojuegos`                | Crea un videojuego y devuelve el documento creado (`201`).                               |
+| `PUT`    | `/api/videojuegos/:id`            | Actualiza un videojuego y devuelve el documento actualizado.                             |
+| `DELETE` | `/api/videojuegos/:id`            | Elimina un videojuego (`204`, sin cuerpo).                                               |
+| `GET`    | `/api/videojuegos/:id/partidas`   | Lista las partidas del videojuego, de la más reciente a la más antigua.                  |
+| `GET`    | `/api/videojuegos/:id/resumen`    | Devuelve el resumen calculado de partidas del videojuego.                                |
 
 Ejemplo de cuerpo para crear un videojuego:
 
@@ -150,11 +152,11 @@ Ejemplo de cuerpo para crear un videojuego:
 
 ### Partidas
 
-| Método | Ruta | Resultado |
-|---|---|---|
-| `GET` | `/api/partidas` | Lista todas las partidas, incluyendo los datos del videojuego asociado. |
-| `POST` | `/api/partidas` | Registra una partida y devuelve el documento creado (`201`). |
-| `DELETE` | `/api/partidas/:id` | Elimina una partida (`204`, sin cuerpo). |
+| Método   | Ruta                | Resultado                                                               |
+| -------- | ------------------- | ----------------------------------------------------------------------- |
+| `GET`    | `/api/partidas`     | Lista todas las partidas, incluyendo los datos del videojuego asociado. |
+| `POST`   | `/api/partidas`     | Registra una partida y devuelve el documento creado (`201`).            |
+| `DELETE` | `/api/partidas/:id` | Elimina una partida (`204`, sin cuerpo).                                |
 
 Ejemplo de cuerpo para registrar una partida:
 
@@ -174,6 +176,40 @@ Todos los campos son obligatorios. `videojuego` debe ser el ID de un videojuego 
 - `400 Bad Request`: ID con formato inválido, filtro `estado` no permitido o datos que no cumplen las validaciones del modelo.
 - `404 Not Found`: no existe el videojuego o la partida solicitada.
 - `500 Internal Server Error`: error inesperado del servidor.
+
+## Middlewares del backend
+
+La API utiliza tres middlewares principales:
+
+### requestId
+
+Genera un identificador UUID para cada solicitud HTTP y lo incorpora a la cabecera `X-Request-ID`.
+
+Este identificador permite relacionar las respuestas del cliente con los registros del servidor.
+
+### logger
+
+Registra en la consola:
+
+- Fecha y hora de la solicitud.
+- Identificador de la solicitud.
+- Método HTTP.
+- Ruta consultada.
+- Código de respuesta HTTP.
+- Tiempo de procesamiento en milisegundos.
+
+### errorHandler
+
+Centraliza el manejo de errores de la aplicación.
+
+| Código | Significado                                      |
+| ------ | ------------------------------------------------ |
+| 400    | Datos o identificadores inválidos                |
+| 404    | Recurso o ruta inexistente                       |
+| 409    | Conflicto por partidas asociadas a un videojuego |
+| 500    | Error interno del servidor                       |
+
+Las respuestas de error contienen el identificador de la solicitud para facilitar el diagnóstico.
 
 ## 7. Instalación y ejecución local
 
@@ -199,7 +235,7 @@ npm run dev
 
 ### Frontend
 
-*Pendiente de implementar.*
+_Pendiente de implementar._
 
 ## 8. Despliegue
 
