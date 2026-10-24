@@ -70,5 +70,6 @@ const videojuegoSchema = new Schema(
 
 export const Videojuego = model(
   "Videojuego",
-  videojuegoSchema
+  videojuegoSchema,
+  "videojuegos"
 );

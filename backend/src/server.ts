@@ -18,5 +18,18 @@ const iniciarServidor = async (): Promise<void> => {
   }
 };
 
+import { Videojuego } from "./models/videojuego.js";
+
+// Después de await conectarDB()
+console.log(
+  "Base de datos:",
+  Videojuego.db.name
+);
+
+console.log(
+  "Colección:",
+  Videojuego.collection.name
+);
+
 iniciarServidor();
 

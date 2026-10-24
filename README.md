@@ -24,7 +24,7 @@ La aplicación busca responder tres preguntas principales:
 
 - React
 - TypeScript
-- Vite
+- React Router
 
 ## 3. Arquitectura del backend
 
@@ -213,6 +213,8 @@ Las respuestas de error contienen el identificador de la solicitud para facilita
 
 ## 7. Instalación y ejecución local
 
+Se necesitan Node.js, npm y una instancia accesible de MongoDB.
+
 ### Backend
 
 ```bash
@@ -233,9 +235,37 @@ Iniciar el servidor:
 npm run dev
 ```
 
+El backend queda disponible en `http://localhost:3000`.
+
 ### Frontend
 
-_Pendiente de implementar._
+En otra terminal, instalar las dependencias:
+
+```bash
+cd frontend
+npm install
+```
+
+Crear `frontend/.env` con la URL base de la API:
+
+```env
+VITE_API_URL=http://localhost:3000/api
+```
+
+Iniciar Vite desde `frontend/`:
+
+```bash
+npm run dev
+```
+
+Abrir en el navegador la dirección local que indique Vite (normalmente `http://localhost:5173`). Para cargar datos, el backend y MongoDB deben estar disponibles.
+
+### Funcionalidades actuales del frontend
+
+- La página inicial lista videojuegos y permite filtrarlos por estado.
+- Cada tarjeta muestra plataforma, género y el conteo de logros obtenidos.
+- El cliente del frontend consulta y crea videojuegos mediante la API.
+- Las rutas para crear y ver detalles de videojuegos, además de la sección de partidas, todavía muestran pantallas provisionales; esas operaciones aún no están disponibles desde la interfaz.
 
 ## 8. Despliegue
 
@@ -244,6 +274,6 @@ _Pendiente de implementar._
 
 ## 9. Estado del proyecto
 
-**En desarrollo.**
+**En desarrollo.** El backend ofrece endpoints para videojuegos, partidas y resúmenes de progreso. El frontend cuenta con un listado filtrable de videojuegos; las pantallas de creación, detalle y partidas están pendientes.
 
 Las funcionalidades y secciones pendientes se actualizarán conforme avance la implementación.

@@ -1,0 +1,153 @@
+
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  color: #f5f3ff;
+  background: #11131d;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+a {
+  color: #baa7ff;
+  text-decoration: none;
+}
+
+button, select {
+  font: inherit;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 6%;
+  background: #191c29;
+  border-bottom: 1px solid #303347;
+}
+
+.navbar nav {
+  display: flex;
+  gap: 24px;
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.contenedor {
+  width: min(1180px, 90%);
+  margin: 48px auto;
+}
+
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.encabezado h1 {
+  margin-bottom: 8px;
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.encabezado p,
+.tarjeta p {
+  color: #a9aec3;
+}
+
+.boton {
+  background: #9979ee;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.filtros {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 34px 0;
+}
+
+select {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #282b3c;
+  color: white;
+  border: 1px solid #42465e;
+}
+
+.grid-videojuegos {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fill, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.tarjeta {
+  overflow: hidden;
+  background: #202334;
+  border: 1px solid #35394d;
+  border-radius: 16px;
+}
+
+.tarjeta-imagen {
+  height: 170px;
+  display: grid;
+  place-items: center;
+  background: #30344b;
+  font-size: 60px;
+}
+
+.tarjeta-contenido {
+  padding: 20px;
+}
+
+.tarjeta h2 {
+  margin: 12px 0;
+}
+
+.etiqueta {
+  display: inline-block;
+  color: #c8baff;
+  background: #393354;
+  padding: 6px 10px;
+  border-radius: 6px;
+  text-transform: capitalize;
+  font-size: 0.8rem;
+}
+
+.mensaje-error {
+  color: #ffb2b2;
+  padding: 16px;
+  background: #412832;
+  border-radius: 10px;
+}
+
+@media (max-width: 650px) {
+  .navbar,
+  .encabezado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .navbar nav {
+    gap: 16px;
+  }
+
+  .filtros {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

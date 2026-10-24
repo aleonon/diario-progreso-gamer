@@ -1,4 +1,5 @@
 
+
 import express from "express";
 import cors from "cors";
 
@@ -18,7 +19,11 @@ app.use(requestId);
 app.use(logger);
 
 // 3. Configurar CORS y JSON
-app.use(cors());
+
+app.use(cors({
+  origin: "http://localhost:5173"
+}));
+
 app.use(express.json());
 
 // 4. Ruta de comprobación
