@@ -8,6 +8,8 @@ import {
 import Navbar from "./components/Navbar";
 import VideojuegosPage from "./pages/VideojuegosPage";
 import VideojuegoFormPage from "./pages/VideojuegoFormPage";
+import VideojuegoDetallePage from "./pages/VideojuegoDetallePage";
+
 
 
 
@@ -44,10 +46,12 @@ export default function App() {
           element={<VideojuegoFormPage />}
         />
 
+
         <Route
           path="/videojuegos/:id"
-          element={<PaginaPendiente />}
+          element={<VideojuegoDetallePage />}
         />
+
 
         <Route
           path="/partidas"

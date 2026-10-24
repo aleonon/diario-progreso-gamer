@@ -1,4 +1,3 @@
-
 :root {
   font-family: Inter, system-ui, sans-serif;
   color: #f5f3ff;
@@ -20,7 +19,8 @@ a {
   text-decoration: none;
 }
 
-button, select {
+button,
+select {
   font: inherit;
 }
 
@@ -136,6 +136,7 @@ select {
 }
 
 @media (max-width: 650px) {
+
   .navbar,
   .encabezado {
     align-items: flex-start;
@@ -234,5 +235,117 @@ select {
 
   .fila-logro {
     flex-direction: column;
+  }
+}
+
+.logro-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.logro-checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: #9979ee;
+}
+
+.logro-checkbox input:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.panel {
+  background: #202334;
+  border: 1px solid #35394d;
+  border-radius: 16px;
+  padding: 28px;
+  margin: 30px 0;
+}
+
+.panel h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+.resumen-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.estadistica {
+  background: #171a28;
+  padding: 22px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.estadistica span {
+  color: #a9aec3;
+  font-size: 0.9rem;
+}
+
+.estadistica strong {
+  color: #f5f3ff;
+  font-size: 1.6rem;
+}
+
+.barra-progreso {
+  width: 100%;
+  height: 12px;
+  background: #393e55;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 24px;
+}
+
+.barra-progreso-valor {
+  height: 100%;
+  background: #9979ee;
+  border-radius: 8px;
+  transition: width 0.3s ease;
+}
+
+.tabla-contenedor {
+  overflow-x: auto;
+}
+
+.tabla-partidas {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.tabla-partidas th,
+.tabla-partidas td {
+  padding: 16px;
+  border-bottom: 1px solid #35394d;
+}
+
+.tabla-partidas th {
+  color: #baa7ff;
+}
+
+.texto-secundario {
+  color: #a9aec3;
+}
+
+@media (max-width: 900px) {
+  .resumen-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .resumen-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    padding: 18px;
   }
 }
