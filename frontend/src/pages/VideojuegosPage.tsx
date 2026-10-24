@@ -168,6 +168,11 @@ export default function VideojuegosPage() {
                                     >
                                         Ver detalle →
                                     </Link>
+                                   
+                                    <p><Link to={`/videojuegos/${juego._id}/editar`}>
+                                        Editar videojuego →
+                                    </Link></p>
+
                                 </div>
                             </article>
                         );

@@ -7,6 +7,9 @@ import {
 
 import Navbar from "./components/Navbar";
 import VideojuegosPage from "./pages/VideojuegosPage";
+import VideojuegoFormPage from "./pages/VideojuegoFormPage";
+
+
 
 function PaginaPendiente() {
   return (
@@ -33,7 +36,12 @@ export default function App() {
 
         <Route
           path="/videojuegos/nuevo"
-          element={<PaginaPendiente />}
+          element={<VideojuegoFormPage />}
+        />
+
+        <Route
+          path="/videojuegos/:id/editar"
+          element={<VideojuegoFormPage />}
         />
 
         <Route

@@ -151,3 +151,88 @@ select {
     flex-direction: column;
   }
 }
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 650px;
+  margin-top: 30px;
+  padding: 28px;
+  background: #202334;
+  border: 1px solid #35394d;
+  border-radius: 16px;
+}
+
+.formulario label {
+  font-weight: 600;
+  color: #e6e1ff;
+}
+
+.formulario input,
+.formulario select {
+  width: 100%;
+  padding: 12px;
+  background: #171a28;
+  border: 1px solid #454960;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.formulario input:focus,
+.formulario select:focus {
+  outline: 2px solid #9979ee;
+  outline-offset: 2px;
+}
+
+.fila-logro {
+  display: flex;
+  gap: 12px;
+}
+
+.fila-logro button,
+.lista-logros button {
+  background: #393354;
+  color: #e6ddff;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.lista-logros {
+  list-style: none;
+  padding: 0;
+}
+
+.lista-logros li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #35394d;
+}
+
+.acciones-formulario {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.formulario .boton {
+  border: 0;
+  cursor: pointer;
+}
+
+@media (max-width: 650px) {
+  .formulario {
+    padding: 18px;
+  }
+
+  .fila-logro {
+    flex-direction: column;
+  }
+}

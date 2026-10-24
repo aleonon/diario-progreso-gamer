@@ -37,13 +37,15 @@ export interface Videojuego {
   updatedAt?: string;
 }
 
+
 export type CrearVideojuegoDTO = Pick<
   Videojuego,
-  "nombre" | "plataforma" | "genero" |
-  "estado"
+  "nombre" | "plataforma" | "genero" | "estado"
 > & {
   logros: Array<{
+    _id?: string;
     nombre: string;
     obtenido: boolean;
   }>;
 };
+
