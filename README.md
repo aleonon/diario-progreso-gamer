@@ -4,7 +4,9 @@
 
 Diario de Progreso Gamer es una aplicación web diseñada para registrar videojuegos, almacenar sesiones de juego y consultar estadísticas de progreso.
 
-La aplicación busca responder tres preguntas principales:
+La aplicación permite organizar una biblioteca personal y seguir el tiempo jugado, las sesiones y los logros de cada videojuego. La interfaz utiliza una estética gamer futurista, adaptable a escritorio y móvil.
+
+Permite responder preguntas como:
 
 - ¿Qué videojuegos estoy jugando actualmente?
 - ¿Cuánto tiempo he dedicado a cada videojuego?
@@ -45,7 +47,7 @@ Esta separación permite mantener el código organizado y facilita su mantenimie
 
 Representa la información general de cada videojuego registrado.
 
-Entre sus propiedades se encuentran el título, la plataforma, el estado del videojuego y una colección de logros.
+Sus propiedades incluyen nombre, plataforma, género, estado y una colección de logros. Cada logro contiene un nombre y un indicador booleano `obtenido`.
 
 Los logros se almacenan como subdocumentos dentro del videojuego.
 
@@ -57,10 +59,10 @@ Representa una sesión de juego.
 
 Sus datos principales incluyen:
 
-- Referencia al videojuego.
-- Fecha de la partida.
-- Duración de la sesión.
-- Porcentaje de avance alcanzado.
+- `videojuego`: referencia al videojuego asociado.
+- `fecha`: fecha de la sesión.
+- `duracionMinutos`: duración como entero mayor o igual a 1.
+- `porcentajeAvance`: avance registrado entre 0 y 100.
 
 **Justificación:** las partidas se almacenan en una colección independiente porque su cantidad puede aumentar continuamente. Además, pueden consultarse sin necesidad de recuperar toda la información del videojuego.
 
@@ -78,7 +80,7 @@ El endpoint `GET /api/videojuegos/:id/resumen` calcula las estadísticas a parti
 - **Última sesión:** fecha de la partida más reciente.
 - **Porcentaje de avance actual:** porcentaje registrado en la partida más reciente. No se promedian los porcentajes porque el resumen representa el estado actual.
 
-La partida más reciente se determina ordenando por fecha descendente y, si dos partidas tienen la misma fecha, por identificador descendente.
+La partida más reciente se determina ordenando por fecha descendente y, si dos partidas tienen la misma fecha, por identificador descendente. La cifra de logros obtenidos que aparece en las tarjetas del catálogo es un conteo independiente y no se confunde con el porcentaje de avance de las partidas.
 
 ### Ejemplo
 
@@ -131,7 +133,7 @@ La URL base local es `http://localhost:3000`. Todas las rutas de la API aceptan 
 | `DELETE` | `/api/videojuegos/:id`            | Elimina un videojuego (`204`, sin cuerpo).                                               |
 | `GET`    | `/api/videojuegos/:id/partidas`   | Lista las partidas del videojuego, de la más reciente a la más antigua.                  |
 | `GET`    | `/api/videojuegos/:id/resumen`    | Devuelve el resumen calculado de partidas del videojuego.                                |
-| `PATCH`  | `/api/videojuegos/:id/logros/:logroId` | Marca un logro como obtenido o pendiente. El cuerpo acepta `{ "obtenido": true }` o `false`. |
+| `PATCH`  | `/api/videojuegos/:id/logros/:logroId` | Marca un logro como obtenido o pendiente. El cuerpo acepta `{ "obtenido": true }` o `{ "obtenido": false }`. |
 
 Ejemplo de cuerpo para crear un videojuego:
 
@@ -150,7 +152,7 @@ Ejemplo de cuerpo para crear un videojuego:
 }
 ```
 
-`nombre`, `plataforma` y `genero` son obligatorios. Las plataformas permitidas son `PC`, `PlayStation`, `Xbox`, `Switch` y `Movil`; los géneros permitidos son `accion`, `rol`, `estrategia`, `puzzle`, `deportes` y `otro`. El estado predeterminado es `jugando` y los logros son una lista vacía si no se especifican.
+`nombre`, `plataforma` y `genero` son obligatorios. Las plataformas permitidas son `PC`, `PlayStation`, `Xbox`, `Switch` y `Movil`; los géneros permitidos son `accion`, `rol`, `estrategia`, `puzzle`, `deportes` y `otro`. Los estados permitidos son `jugando`, `pausado`, `completado` y `abandonado`. El estado predeterminado es `jugando` y los logros son una lista vacía si no se especifican.
 
 ### Partidas
 
@@ -165,27 +167,28 @@ Ejemplo de cuerpo para registrar una partida:
 ```json
 {
   "videojuego": "ID_DEL_VIDEOJUEGO",
-  "fecha": "2026-10-23T18:00:00.000Z",
+  "fecha": "2026-10-23",
   "duracionMinutos": 90,
   "porcentajeAvance": 45
 }
 ```
 
-Todos los campos son obligatorios. `videojuego` debe ser el ID de un videojuego existente, `duracionMinutos` debe ser al menos `1` y `porcentajeAvance` debe estar entre `0` y `100`.
+Todos los campos son obligatorios y no se aceptan campos adicionales. `videojuego` debe ser el ID de un videojuego existente, `fecha` debe ser una fecha real con formato `YYYY-MM-DD`, `duracionMinutos` debe ser un entero mayor o igual a `1` y `porcentajeAvance` debe ser un número entre `0` y `100`.
 
 ### Errores comunes
 
 - `400 Bad Request`: ID con formato inválido, filtro `estado` no permitido o datos que no cumplen las validaciones del modelo.
 - `404 Not Found`: no existe el videojuego o la partida solicitada.
+- `409 Conflict`: no se puede eliminar un videojuego que todavía tiene partidas asociadas.
 - `500 Internal Server Error`: error inesperado del servidor.
 
 ## Middlewares del backend
 
-La API utiliza tres middlewares principales:
+La API utiliza middlewares para identificar y registrar las solicitudes, y para centralizar los errores:
 
 ### requestId
 
-Genera un identificador UUID para cada solicitud HTTP y lo incorpora a la cabecera `X-Request-ID`.
+Genera un identificador UUID para cada solicitud HTTP, lo incorpora a la cabecera `X-Request-ID` y lo incluye en las respuestas.
 
 Este identificador permite relacionar las respuestas del cliente con los registros del servidor.
 
@@ -229,9 +232,10 @@ Crear un archivo `.env` con las variables necesarias:
 ```env
 PORT=3000
 MONGODB_URI=TU_CADENA_DE_CONEXION
+FRONTEND_URL=http://localhost:5173
 ```
 
-Iniciar el servidor:
+Iniciar el servidor en modo desarrollo:
 
 ```bash
 npm run dev
@@ -262,14 +266,17 @@ npm run dev
 
 Abrir en el navegador la dirección local que indique Vite (normalmente `http://localhost:5173`). Para cargar datos, el backend y MongoDB deben estar disponibles.
 
+También se puede copiar `frontend/.env.example` a `frontend/.env` y ajustar `VITE_API_URL` si el backend utiliza otra dirección. El backend permite el origen local `http://localhost:5173` y el origen configurado en `FRONTEND_URL`.
+
 ### Funcionalidades actuales del frontend
 
-- La página inicial muestra el catálogo y permite filtrarlo por estado. Las tarjetas muestran plataforma, género, el conteo de logros obtenidos y su progreso.
+- La página inicial muestra el catálogo y permite filtrarlo por estado. Las tarjetas muestran estado, nombre, plataforma, género, logros obtenidos y su barra de progreso. Sus portadas usan iconos SVG y composiciones abstractas locales, con acentos visuales según género y estado; no dependen de imágenes externas.
 - Se pueden crear y editar videojuegos, incluidos sus logros.
 - El detalle de cada videojuego muestra las estadísticas del backend, el historial de partidas y los logros; permite cambiar el estado de los logros y abrir el formulario de registro.
-- El formulario de partidas permite seleccionar un videojuego, una fecha (por defecto, la fecha local actual), la duración en minutos y el porcentaje de avance. Valida que la duración sea un entero mayor que cero y que el avance esté entre 0 y 100. Al guardar, vuelve al detalle del videojuego para consultar las estadísticas actualizadas.
+- El formulario de partidas permite seleccionar un videojuego, una fecha (por defecto, la fecha local actual), la duración en minutos y el porcentaje de avance. Valida que la duración sea un entero mayor que cero y que el avance esté entre 0 y 100. Al guardar, vuelve al detalle del videojuego.
 - Desde el detalle, el formulario de partidas puede abrirse con el videojuego ya seleccionado mediante `?videojuego=ID`.
 - El historial general de partidas permite buscar por nombre de videojuego y eliminar sesiones con confirmación.
+- Las páginas conservan estados de carga, error y contenido vacío; el diseño se adapta a pantallas de escritorio y móvil.
 
 ### Rutas principales del frontend
 
@@ -284,11 +291,25 @@ Abrir en el navegador la dirección local que indique Vite (normalmente `http://
 
 ## 8. Despliegue
 
-- Backend: pendiente.
-- Frontend: pendiente.
+El despliegue de producción está pendiente. Antes de publicar, configura `MONGODB_URI`, `PORT`, `FRONTEND_URL`, `VITE_API_URL` y los dominios correspondientes al entorno.
 
-## 9. Estado del proyecto
+## 9. Verificación
 
-**En desarrollo.** El frontend y el backend permiten gestionar videojuegos, logros y partidas, consultar el historial y visualizar estadísticas de progreso. El despliegue sigue pendiente.
+Desde la carpeta `frontend/`:
 
-Las funcionalidades y secciones pendientes se actualizarán conforme avance la implementación.
+```bash
+npm run build
+npm run lint
+```
+
+Desde `backend/`, compilar TypeScript:
+
+```bash
+npm run build
+```
+
+## 10. Estado del proyecto
+
+**En desarrollo.** La aplicación permite gestionar videojuegos, logros y partidas, consultar el historial y visualizar estadísticas calculadas por el backend. La publicación en un entorno de producción sigue pendiente.
+
+Las funciones disponibles y los pasos de configuración se documentan en este archivo conforme evoluciona el proyecto.
