@@ -194,10 +194,81 @@ export default function VideojuegosPage() {
           className="catalogo-hero-decoracion"
           aria-hidden="true"
         >
-          <IconoVideojuego
-            seed="diario-gamer-hero"
-            className="catalogo-hero-icon"
-          />
+          <span className="hero-hud hero-hud-superior">
+            GAME LIBRARY <span>/ 01</span>
+          </span>
+
+          <div className="hero-marco-enfoque">
+            <svg
+              className="catalogo-hero-icon"
+              viewBox="0 0 512 420"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient id="hero-frame" x1="92" y1="74" x2="422" y2="354" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#37CFFF" stopOpacity=".82" />
+                  <stop offset=".48" stopColor="#873DFF" />
+                  <stop offset="1" stopColor="#FF3D9A" stopOpacity=".7" />
+                </linearGradient>
+                <linearGradient id="hero-pages" x1="175" y1="152" x2="340" y2="290" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#F6F7FF" stopOpacity=".94" />
+                  <stop offset="1" stopColor="#A5ADC5" stopOpacity=".72" />
+                </linearGradient>
+                <linearGradient id="hero-core" x1="256" y1="172" x2="256" y2="258" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#D8FF20" />
+                  <stop offset="1" stopColor="#37CFFF" />
+                </linearGradient>
+                <filter id="hero-glow" x="75" y="46" width="362" height="345" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse">
+                  <feGaussianBlur stdDeviation="15" />
+                </filter>
+              </defs>
+
+              <path
+                d="M256 55 407 142v143l-151 87-151-87V142L256 55Z"
+                stroke="url(#hero-frame)"
+                strokeOpacity=".24"
+                strokeWidth="2"
+                filter="url(#hero-glow)"
+              />
+              <path
+                d="M256 55 407 142v143l-151 87-151-87V142L256 55Z"
+                fill="url(#hero-frame)"
+                fillOpacity=".055"
+                stroke="url(#hero-frame)"
+                strokeWidth="1.5"
+              />
+              <path d="m125 151 131 75 131-75M256 226v123" stroke="url(#hero-frame)" strokeOpacity=".28" />
+
+              <path
+                d="M256 178c-27-19-59-24-94-15v92c36-9 67-3 94 17v-94Z"
+                fill="url(#hero-pages)"
+                fillOpacity=".12"
+                stroke="url(#hero-pages)"
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M256 178c27-19 59-24 94-15v92c-36-9-67-3-94 17v-94Z"
+                fill="url(#hero-pages)"
+                fillOpacity=".08"
+                stroke="url(#hero-pages)"
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+              <path d="M256 178v94" stroke="#D8FF20" strokeOpacity=".75" strokeWidth="2" />
+              <path d="M182 187c19-3 36 0 51 8M182 204c19-3 36 0 51 8M330 187c-19-3-36 0-51 8M330 204c-19-3-36 0-51 8" stroke="#F6F7FF" strokeOpacity=".38" strokeWidth="2" strokeLinecap="round" />
+              <path d="m256 156 9 16-9 16-9-16 9-16Z" fill="url(#hero-core)" />
+            </svg>
+
+            <span className="hero-marca-esquina hero-marca-esquina-uno" />
+            <span className="hero-marca-esquina hero-marca-esquina-dos" />
+            <span className="hero-punto-foco" />
+          </div>
+
+          <span className="hero-hud hero-hud-inferior">
+            PLAYER JOURNAL <span>· PERSONAL ARCHIVE</span>
+          </span>
         </div>
       </section>
 

@@ -1486,19 +1486,19 @@ select option {
 .catalogo-hero {
   position: relative;
   display: grid;
-  min-height: 350px;
-  grid-template-columns: minmax(0, 1.08fr) minmax(260px, 0.92fr);
+  min-height: 356px;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
   align-items: center;
   overflow: hidden;
   margin-bottom: 42px;
-  padding: clamp(30px, 5vw, 58px);
+  padding: clamp(30px, 4.6vw, 58px);
   border: 1px solid rgba(151, 166, 211, 0.11);
   border-radius: var(--radius-xl);
   background:
-    radial-gradient(ellipse at 77% 38%, rgba(107, 55, 214, 0.28), transparent 42%),
-    radial-gradient(ellipse at 96% 76%, rgba(255, 61, 154, 0.12), transparent 34%),
-    radial-gradient(ellipse at 57% 108%, rgba(38, 119, 220, 0.14), transparent 44%),
-    linear-gradient(112deg, rgba(8, 12, 24, 0.96) 8%, rgba(10, 15, 31, 0.76) 57%, rgba(17, 13, 36, 0.68));
+    radial-gradient(ellipse 36% 82% at 82% 48%, rgba(107, 55, 214, 0.2), transparent 78%),
+    radial-gradient(ellipse 24% 62% at 91% 74%, rgba(255, 61, 154, 0.09), transparent 78%),
+    radial-gradient(ellipse 43% 82% at 61% 112%, rgba(38, 119, 220, 0.12), transparent 76%),
+    linear-gradient(108deg, rgba(8, 12, 24, 0.97) 7%, rgba(10, 15, 31, 0.91) 51%, rgba(15, 14, 33, 0.76));
   box-shadow:
     inset 0 1px rgba(255, 255, 255, 0.045),
     0 34px 90px rgba(5, 7, 18, 0.18);
@@ -1518,23 +1518,19 @@ select option {
 
 .catalogo-hero::after {
   position: absolute;
-  right: -105px;
-  bottom: -225px;
-  width: 510px;
-  height: 350px;
-  border: 1px solid rgba(135, 61, 255, 0.28);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 28px rgba(55, 207, 255, 0.04),
-    0 0 0 62px rgba(255, 61, 154, 0.045);
+  top: 50%;
+  left: 53%;
+  width: 1px;
+  height: 62%;
+  background: linear-gradient(180deg, transparent, rgba(135, 61, 255, 0.14), rgba(55, 207, 255, 0.11), transparent);
   content: "";
   pointer-events: none;
-  transform: rotate(-25deg);
+  transform: translateY(-50%);
 }
 
 .catalogo-hero-contenido {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   max-width: 640px;
 }
 
@@ -1559,7 +1555,7 @@ select option {
 .catalogo-hero h1 {
   margin: 17px 0 13px;
   font-family: "Space Grotesk", Inter, sans-serif;
-  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-size: clamp(3rem, 6.4vw, 5.35rem);
   font-weight: 700;
   letter-spacing: -0.065em;
   line-height: 0.96;
@@ -1587,42 +1583,134 @@ select option {
 .catalogo-hero-decoracion {
   position: relative;
   z-index: 1;
-  display: grid;
-  min-height: 245px;
-  place-items: center;
+  display: flex;
+  min-width: 0;
+  min-height: 286px;
+  align-items: center;
+  justify-content: center;
   isolation: isolate;
 }
 
-.catalogo-hero-decoracion::before,
-.catalogo-hero-decoracion::after {
+.catalogo-hero-decoracion::before {
   position: absolute;
-  width: min(25vw, 278px);
-  aspect-ratio: 1;
-  border: 1px solid rgba(55, 207, 255, 0.32);
+  inset: 12% 7%;
   border-radius: 50%;
-  box-shadow:
-    0 0 64px rgba(78, 76, 255, 0.2),
-    inset 0 0 58px rgba(135, 61, 255, 0.12);
+  background:
+    radial-gradient(ellipse at 50% 46%, rgba(135, 61, 255, 0.22), transparent 48%),
+    radial-gradient(ellipse at 54% 60%, rgba(55, 207, 255, 0.12), transparent 67%);
+  filter: blur(14px);
   content: "";
-  transform: rotate(-28deg) scaleY(0.58);
+  pointer-events: none;
 }
 
-.catalogo-hero-decoracion::after {
-  width: min(31vw, 340px);
-  border-color: rgba(255, 61, 154, 0.34);
-  transform: rotate(31deg) scaleY(0.52);
+.hero-marco-enfoque {
+  position: relative;
+  display: grid;
+  width: min(100%, 440px);
+  aspect-ratio: 1.28;
+  place-items: center;
+  background:
+    linear-gradient(135deg, rgba(55, 207, 255, 0.045), transparent 30% 67%, rgba(255, 61, 154, 0.04)),
+    linear-gradient(180deg, rgba(12, 17, 34, 0.24), rgba(11, 14, 28, 0.08));
+  clip-path: polygon(8% 0, 92% 0, 100% 12%, 100% 88%, 92% 100%, 8% 100%, 0 88%, 0 12%);
+}
+
+.hero-marco-enfoque::before {
+  position: absolute;
+  inset: 0;
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, rgba(55, 207, 255, 0.24), transparent 28% 72%, rgba(255, 61, 154, 0.2)) border-box;
+  content: "";
+  mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .catalogo-hero-icon {
   position: relative;
   z-index: 1;
-  width: clamp(100px, 12vw, 146px);
-  height: auto;
+  display: block;
+  width: min(100%, 410px);
+  max-height: 318px;
+  overflow: visible;
+  filter: drop-shadow(0 18px 34px rgba(5, 7, 18, 0.32));
+}
+
+.hero-hud {
+  position: absolute;
+  z-index: 2;
+  color: rgba(205, 214, 240, 0.66);
+  font-family: "Space Grotesk", Inter, sans-serif;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+}
+
+.hero-hud span {
+  color: rgba(165, 173, 197, 0.58);
+  font-weight: 500;
+}
+
+.hero-hud-superior {
+  top: 4%;
+  right: 3%;
+}
+
+.hero-hud-superior span {
   color: var(--accent-lime);
-  filter:
-    drop-shadow(0 0 14px rgba(216, 255, 32, 0.28))
-    drop-shadow(0 0 42px rgba(135, 61, 255, 0.62));
-  transform: rotate(-8deg);
+}
+
+.hero-hud-inferior {
+  bottom: 5%;
+  left: 3%;
+  padding-left: 12px;
+}
+
+.hero-hud-inferior::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(55, 207, 255, 0.58);
+  content: "";
+  transform: translateY(-50%);
+}
+
+.hero-marca-esquina {
+  position: absolute;
+  z-index: 2;
+  width: 16px;
+  height: 16px;
+  border-color: rgba(216, 255, 32, 0.76);
+  border-style: solid;
+}
+
+.hero-marca-esquina-uno {
+  top: 14%;
+  left: 9%;
+  border-width: 1px 0 0 1px;
+}
+
+.hero-marca-esquina-dos {
+  right: 9%;
+  bottom: 14%;
+  border-width: 0 1px 1px 0;
+}
+
+.hero-punto-foco {
+  position: absolute;
+  z-index: 2;
+  top: 17%;
+  right: 13%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-pink);
+  box-shadow: 0 0 12px rgba(255, 61, 154, 0.55);
 }
 
 .catalogo-seccion {
@@ -1907,13 +1995,22 @@ select option {
 
 @media (max-width: 760px) {
   .catalogo-hero {
-    min-height: 290px;
-    grid-template-columns: minmax(0, 1fr) 0.55fr;
-    padding: 30px;
+    min-height: 310px;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    padding: 28px;
   }
 
   .catalogo-hero-decoracion {
-    min-height: 190px;
+    min-height: 226px;
+  }
+
+  .catalogo-hero h1 {
+    font-size: clamp(2.8rem, 6.2vw, 3.8rem);
+  }
+
+  .hero-hud {
+    font-size: 0.5rem;
+    letter-spacing: 0.12em;
   }
 
   .catalogo-encabezado {
@@ -1943,24 +2040,42 @@ select option {
   }
 
   .catalogo-hero-decoracion {
-    position: absolute;
-    right: -28px;
-    bottom: -24px;
-    width: 43%;
-    min-height: 160px;
-    opacity: 0.48;
+    width: 100%;
+    min-height: 180px;
+    margin-top: 8px;
+  }
+
+  .hero-marco-enfoque {
+    width: min(100%, 330px);
+    aspect-ratio: 1.55;
   }
 
   .catalogo-hero-icon {
-    width: 90px;
+    width: min(100%, 290px);
   }
 
-  .catalogo-hero-decoracion::before {
-    width: 140px;
+  .hero-hud-superior {
+    top: 0;
+    right: 0;
   }
 
-  .catalogo-hero-decoracion::after {
-    width: 160px;
+  .hero-hud-inferior,
+  .hero-punto-foco {
+    display: none;
+  }
+
+  .hero-marca-esquina-uno {
+    top: 8%;
+    left: 7%;
+  }
+
+  .hero-marca-esquina-dos {
+    right: 7%;
+    bottom: 8%;
+  }
+
+  .catalogo-hero::after {
+    display: none;
   }
 
   .catalogo-encabezado {
