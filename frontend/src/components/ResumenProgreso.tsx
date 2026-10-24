@@ -22,28 +22,28 @@ export default function ResumenProgreso({
 
   return (
     <section className="panel">
-      <h2>Resumen de progreso</h2>
+      <h2 className="section-title">Resumen de progreso</h2>
 
       <div className="resumen-grid">
         <div className="estadistica">
-          <span>Horas jugadas</span>
+          <span className="stat-label">◷ · Horas jugadas</span>
           <strong>
             {resumen.horasTotales.toFixed(1)} h
           </strong>
         </div>
 
         <div className="estadistica">
-          <span>Partidas registradas</span>
+          <span className="stat-label">✦ · Partidas registradas</span>
           <strong>{resumen.cantidadPartidas}</strong>
         </div>
 
         <div className="estadistica">
-          <span>Avance actual</span>
+          <span className="stat-label">▥ · Avance actual</span>
           <strong>{resumen.porcentajeAvance}%</strong>
         </div>
 
         <div className="estadistica">
-          <span>Última sesión</span>
+          <span className="stat-label">▦ · Última sesión</span>
           <strong>{fecha}</strong>
         </div>
       </div>

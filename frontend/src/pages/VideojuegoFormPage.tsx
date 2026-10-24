@@ -167,23 +167,27 @@ export default function VideojuegoFormPage() {
   if (cargando) {
     return (
       <main className="contenedor">
-        <p role="status">Cargando videojuego...</p>
+        <div className="loading-pulse" role="status" aria-label="Cargando videojuego" />
       </main>
     );
   }
 
   return (
     <main className="contenedor">
-      <Link to="/">← Volver al catálogo</Link>
-
-      <h1>
-        {esEdicion
-          ? "Editar videojuego"
-          : "Nuevo videojuego"}
-      </h1>
+      <div className="form-title-wrap">
+        <Link to="/" className="detalle-back">← Volver al catálogo</Link>
+        <h1 className="page-title">
+          {esEdicion ? "Editar videojuego" : "Nuevo videojuego"}
+        </h1>
+        <p className="texto-secundario">
+          {esEdicion
+            ? "Actualiza los datos de tu videojuego y sus logros."
+            : "Añade un juego a tu biblioteca y empieza a registrar tu progreso."}
+        </p>
+      </div>
 
       {error && (
-        <p className="mensaje-error" role="alert">
+        <p className="mensaje-error form-title-wrap" role="alert">
           {error}
         </p>
       )}

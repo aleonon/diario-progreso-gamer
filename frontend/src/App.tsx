@@ -11,7 +11,7 @@ import VideojuegoFormPage from "./pages/VideojuegoFormPage";
 import VideojuegoDetallePage from "./pages/VideojuegoDetallePage";
 
 import PartidaFormPage from "./pages/PartidaFormPage";
-import PartidasPage from "./pages/partidasPage";
+import PartidasHistoryPage from "./pages/PartidasHistoryPage";
 
 
 
@@ -46,7 +46,7 @@ export default function App() {
 
         <Route
           path="/partidas"
-          element={<PartidasPage />}
+          element={<PartidasHistoryPage />}
         />
 
 
@@ -65,4 +65,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-

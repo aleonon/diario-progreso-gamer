@@ -1,50 +1,25 @@
-
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import {
-    videojuegosApi
-} from "../api/videojuegosApi";
-import {
-    partidasApi
-} from "../api/partidasApi";
-
-import type {
-    Videojuego
-} from "../types/videojuego.types";
-import type {
-    Partida
-} from "../types/partidas.types";
-import type {
-    ResumenProgreso as Resumen
-} from "../api/videojuegosApi";
-
-import ResumenProgreso from "../components/ResumenProgreso";
+import { partidasApi } from "../api/partidasApi";
+import { videojuegosApi } from "../api/videojuegosApi";
 import HistorialPartidas from "../components/HistorialPartidas";
+import ResumenProgreso from "../components/ResumenProgreso";
+
+import type { ResumenProgreso as Resumen } from "../api/videojuegosApi";
+import type { Partida } from "../types/partidas.types";
+import type { Videojuego } from "../types/videojuego.types";
 
 export default function VideojuegoDetallePage() {
     const { id } = useParams<{ id: string }>();
-
-    const [videojuego, setVideojuego] =
-        useState<Videojuego | null>(null);
-
-    const [resumen, setResumen] =
-        useState<Resumen | null>(null);
-
-    const [partidas, setPartidas] =
-        useState<Partida[]>([]);
-
+    const [videojuego, setVideojuego] = useState<Videojuego | null>(null);
+    const [resumen, setResumen] = useState<Resumen | null>(null);
+    const [partidas, setPartidas] = useState<Partida[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] =
-        useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [errorLogro, setErrorLogro] = useState<string | null>(null);
+    const [actualizandoLogro, setActualizandoLogro] = useState<string | null>(null);
 
-    const [errorLogro, setErrorLogro] =
-        useState<string | null>(null);
-
-    const [actualizandoLogro, setActualizandoLogro] =
-        useState<string | null>(null);
-
-    // Consultar los datos del backend
     useEffect(() => {
         let activo = true;
 
@@ -63,62 +38,44 @@ export default function VideojuegoDetallePage() {
             setPartidas([]);
 
             try {
-                const [
-                    datosJuego,
-                    datosResumen,
-                    datosPartidas
-                ] = await Promise.all([
+                const [datosJuego, datosResumen, datosPartidas] = await Promise.all([
                     videojuegosApi.obtener(id),
                     videojuegosApi.obtenerResumen(id),
                     partidasApi.porVideojuego(id)
                 ]);
 
                 if (!activo) return;
-
                 setVideojuego(datosJuego);
                 setResumen(datosResumen);
                 setPartidas(datosPartidas);
-
             } catch (err) {
-                if (!activo) return;
-
-                setError(
-                    err instanceof Error
-                        ? err.message
-                        : "No se pudieron cargar los datos"
-                );
+                if (activo) {
+                    setError(
+                        err instanceof Error
+                            ? err.message
+                            : "No se pudieron cargar los datos"
+                    );
+                }
             } finally {
                 if (activo) setLoading(false);
             }
         }
 
         cargarDatos();
-
         return () => {
             activo = false;
         };
     }, [id]);
 
-    // Actualizar un logro
-    async function cambiarLogro(
-        logroId: string,
-        obtenido: boolean
-    ) {
+    async function cambiarLogro(logroId: string, obtenido: boolean) {
         if (!id || actualizandoLogro) return;
 
         setActualizandoLogro(logroId);
         setErrorLogro(null);
 
         try {
-            const actualizado =
-                await videojuegosApi.actualizarLogro(
-                    id,
-                    logroId,
-                    obtenido
-                );
-
+            const actualizado = await videojuegosApi.actualizarLogro(id, logroId, obtenido);
             setVideojuego(actualizado);
-
         } catch (err) {
             setErrorLogro(
                 err instanceof Error
@@ -133,9 +90,7 @@ export default function VideojuegoDetallePage() {
     if (loading) {
         return (
             <main className="contenedor">
-                <p role="status">
-                    Cargando información del videojuego...
-                </p>
+                <div className="loading-pulse" role="status" aria-label="Cargando videojuego" />
             </main>
         );
     }
@@ -143,72 +98,81 @@ export default function VideojuegoDetallePage() {
     if (error || !videojuego) {
         return (
             <main className="contenedor">
-                <h1>Error al cargar</h1>
-                <p role="alert">
-                    {error ?? "Videojuego no encontrado"}
-                </p>
-                <Link to="/">Volver al catálogo</Link>
+                <div className="state-panel" role="alert">
+                    <h1>Error al cargar</h1>
+                    <p>{error ?? "Videojuego no encontrado"}</p>
+                    <Link to="/" className="button-secondary">Volver al catálogo</Link>
+                </div>
             </main>
         );
     }
 
+    const logros = videojuego.logros ?? [];
+    const obtenidos = logros.filter((logro) => logro.obtenido).length;
+    const porcentajeLogros = logros.length
+        ? Math.round((obtenidos / logros.length) * 100)
+        : 0;
+
     return (
         <main className="contenedor">
-            <Link to="/">← Volver al catálogo</Link>
+            <Link to="/" className="detalle-back">← Volver a mi biblioteca</Link>
 
-            <header className="encabezado">
-                <div>
-                    <h1>{videojuego.nombre}</h1>
-                    <p>
-                        {videojuego.plataforma} · {videojuego.genero}
-                    </p>
-                    <span className="etiqueta">
+            <section className="detail-hero">
+                <div className="detail-cover" aria-hidden="true">✦</div>
+                <div className="detail-content">
+                    <span className={`etiqueta status-${videojuego.estado}`}>
                         {videojuego.estado}
                     </span>
-                </div>
-
-                <Link
-                    to={`/videojuegos/${videojuego._id}/editar`}
-                    className="boton"
-                >
-                    Editar videojuego
-                </Link>
-            </header>
-
-            {/* Estadísticas calculadas */}
-            {resumen && (
-                <ResumenProgreso resumen={resumen} />
-            )}
-
-            {/* Logros */}
-            <section className="panel">
-                <h2>Logros</h2>
-
-                {errorLogro && (
-                    <p role="alert" className="mensaje-error">
-                        {errorLogro}
+                    <h1>{videojuego.nombre}</h1>
+                    <div className="detail-meta">
+                        <span>{videojuego.plataforma}</span>
+                        <span aria-hidden="true">·</span>
+                        <span>{videojuego.genero}</span>
+                    </div>
+                    <div className="detail-actions">
+                        <Link to={`/videojuegos/${videojuego._id}/editar`} className="button-secondary">
+                            Editar videojuego
+                        </Link>
+                        <Link to={`/partidas/nueva?videojuego=${videojuego._id}`} className="boton">
+                            ＋ Registrar partida
+                        </Link>
+                    </div>
+                    <p className="resumen-logros">
+                        Logros: {obtenidos}/{logros.length}
                     </p>
-                )}
+                    <div
+                        className="progress-track"
+                        role="progressbar"
+                        aria-label="Logros obtenidos"
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={porcentajeLogros}
+                    >
+                        <div className="progress-fill" style={{ width: `${porcentajeLogros}%` }} />
+                    </div>
+                </div>
+            </section>
 
-                {videojuego.logros.length === 0 ? (
-                    <p>No hay logros registrados.</p>
+            {resumen && <ResumenProgreso resumen={resumen} />}
+
+            <section className="panel">
+                <h2 className="section-title">Logros</h2>
+                {errorLogro && (
+                    <p role="alert" className="mensaje-error">{errorLogro}</p>
+                )}
+                {logros.length === 0 ? (
+                    <p className="texto-secundario">No hay logros registrados.</p>
                 ) : (
-                    <ul className="lista-logros">
-                        {videojuego.logros.map((logro) => (
+                    <ul className="logro-list">
+                        {logros.map((logro) => (
                             <li key={logro._id}>
                                 <label className="logro-checkbox">
                                     <input
                                         type="checkbox"
                                         checked={logro.obtenido}
-                                        disabled={
-                                            actualizandoLogro !== null ||
-                                            !logro._id
-                                        }
-                                        onChange={(e) =>
-                                            cambiarLogro(
-                                                logro._id,
-                                                e.target.checked
-                                            )
+                                        disabled={actualizandoLogro !== null || !logro._id}
+                                        onChange={(event) =>
+                                            cambiarLogro(logro._id, event.target.checked)
                                         }
                                     />
                                     <span>{logro.nombre}</span>
@@ -217,26 +181,12 @@ export default function VideojuegoDetallePage() {
                         ))}
                     </ul>
                 )}
-
                 <p className="resumen-logros">
-                    Logros obtenidos:{" "}
-                    {videojuego.logros.filter(
-                        logro => logro.obtenido
-                    ).length}
-                    {" / "}
-                    {videojuego.logros.length}
+                    {obtenidos} de {logros.length} logros obtenidos
                 </p>
             </section>
 
-            {/* Sesiones registradas */}
             <HistorialPartidas partidas={partidas} />
-
-            <Link
-                to={`/partidas/nueva?videojuego=${videojuego._id}`}
-                className="boton"
-            >
-                + Registrar partida
-            </Link>
         </main>
     );
 }

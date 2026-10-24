@@ -45,8 +45,14 @@ export default function PartidaFormPage() {
     const [videojuegos, setVideojuegos] =
         useState<Videojuego[]>([]);
 
-    const [videojuegoId, setVideojuegoId] =
-        useState(videojuegoPreseleccionado);
+    const [seleccionVideojuego, setSeleccionVideojuego] = useState({
+        parametro: videojuegoPreseleccionado,
+        valor: videojuegoPreseleccionado
+    });
+    const videojuegoId =
+        seleccionVideojuego.parametro === videojuegoPreseleccionado
+            ? seleccionVideojuego.valor
+            : videojuegoPreseleccionado;
 
 
     const [fecha, setFecha] = useState(
@@ -98,11 +104,6 @@ export default function PartidaFormPage() {
             activo = false;
         };
     }, []);
-
-    // Actualizar selección si cambia el parámetro URL
-    useEffect(() => {
-        setVideojuegoId(videojuegoPreseleccionado);
-    }, [videojuegoPreseleccionado]);
 
     async function guardar(
         event: React.FormEvent<HTMLFormElement>
@@ -189,34 +190,33 @@ export default function PartidaFormPage() {
     if (cargando) {
         return (
             <main className="contenedor">
-                <p role="status">
-                    Cargando videojuegos...
-                </p>
+                <div className="loading-pulse" role="status" aria-label="Cargando videojuegos" />
             </main>
         );
     }
 
     return (
         <main className="contenedor">
-
-            <Link to="/partidas">
+            <div className="form-title-wrap">
+            <Link to="/partidas" className="detalle-back">
                 ← Volver a partidas
             </Link>
 
-            <h1>Registrar nueva partida</h1>
+            <h1 className="page-title">Registrar nueva partida</h1>
             <p className="texto-secundario">
                 Registra una sesión para actualizar
                 tu progreso.
             </p>
+            </div>
 
             {error && (
-                <p role="alert" className="mensaje-error">
+                <p role="alert" className="mensaje-error form-title-wrap">
                     {error}
                 </p>
             )}
 
             {videojuegos.length === 0 ? (
-                <div className="panel">
+                <div className="panel form-title-wrap">
                     <p>
                         No tienes videojuegos registrados.
                     </p>
@@ -237,9 +237,10 @@ export default function PartidaFormPage() {
                         id="videojuego"
                         required
                         value={videojuegoId}
-                        onChange={e =>
-                            setVideojuegoId(e.target.value)
-                        }
+                        onChange={e => setSeleccionVideojuego({
+                            parametro: videojuegoPreseleccionado,
+                            valor: e.target.value
+                        })}
                     >
                         <option value="">
                             Selecciona un videojuego

@@ -5,7 +5,8 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <NavLink to="/" className="logo">
-        Diario Gamer
+        <span className="logo-mark" aria-hidden="true">✦</span>
+        <span>Diario <span className="logo-accent">Gamer</span></span>
       </NavLink>
 
       <nav>

@@ -264,12 +264,12 @@ Abrir en el navegador la dirección local que indique Vite (normalmente `http://
 
 ### Funcionalidades actuales del frontend
 
-- La página inicial muestra el catálogo y permite filtrarlo por estado. Las tarjetas muestran plataforma, género y el conteo de logros obtenidos.
+- La página inicial muestra el catálogo y permite filtrarlo por estado. Las tarjetas muestran plataforma, género, el conteo de logros obtenidos y su progreso.
 - Se pueden crear y editar videojuegos, incluidos sus logros.
-- El detalle de cada videojuego muestra su resumen de progreso y el historial de partidas; desde ahí se puede marcar o desmarcar cada logro y abrir el formulario para registrar una partida.
+- El detalle de cada videojuego muestra las estadísticas del backend, el historial de partidas y los logros; permite cambiar el estado de los logros y abrir el formulario de registro.
 - El formulario de partidas permite seleccionar un videojuego, una fecha (por defecto, la fecha local actual), la duración en minutos y el porcentaje de avance. Valida que la duración sea un entero mayor que cero y que el avance esté entre 0 y 100. Al guardar, vuelve al detalle del videojuego para consultar las estadísticas actualizadas.
 - Desde el detalle, el formulario de partidas puede abrirse con el videojuego ya seleccionado mediante `?videojuego=ID`.
-- La ruta `/partidas/nueva` permite registrar una partida. La ruta `/partidas` todavía muestra una pantalla provisional; el listado general y la administración de partidas no están disponibles en esa pantalla.
+- El historial general de partidas permite buscar por nombre de videojuego y eliminar sesiones con confirmación.
 
 ### Rutas principales del frontend
 
@@ -280,7 +280,7 @@ Abrir en el navegador la dirección local que indique Vite (normalmente `http://
 | `/videojuegos/:id` | Detalle, resumen, logros e historial de partidas. |
 | `/videojuegos/:id/editar` | Formulario para editar un videojuego. |
 | `/partidas/nueva` | Formulario para registrar una partida. |
-| `/partidas` | Pantalla provisional; el listado general está pendiente. |
+| `/partidas` | Historial de sesiones con búsqueda y eliminación. |
 
 ## 8. Despliegue
 
@@ -289,6 +289,6 @@ Abrir en el navegador la dirección local que indique Vite (normalmente `http://
 
 ## 9. Estado del proyecto
 
-**En desarrollo.** El backend ofrece endpoints para videojuegos, partidas y resúmenes de progreso. El frontend ya permite consultar el catálogo, crear y editar videojuegos, revisar su detalle y registrar partidas; el listado general de partidas sigue pendiente.
+**En desarrollo.** El frontend y el backend permiten gestionar videojuegos, logros y partidas, consultar el historial y visualizar estadísticas de progreso. El despliegue sigue pendiente.
 
 Las funcionalidades y secciones pendientes se actualizarán conforme avance la implementación.
