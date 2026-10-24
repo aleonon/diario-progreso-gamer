@@ -24,6 +24,7 @@ La aplicación busca responder tres preguntas principales:
 
 - React
 - TypeScript
+- Vite
 - React Router
 
 ## 3. Arquitectura del backend
@@ -130,6 +131,7 @@ La URL base local es `http://localhost:3000`. Todas las rutas de la API aceptan 
 | `DELETE` | `/api/videojuegos/:id`            | Elimina un videojuego (`204`, sin cuerpo).                                               |
 | `GET`    | `/api/videojuegos/:id/partidas`   | Lista las partidas del videojuego, de la más reciente a la más antigua.                  |
 | `GET`    | `/api/videojuegos/:id/resumen`    | Devuelve el resumen calculado de partidas del videojuego.                                |
+| `PATCH`  | `/api/videojuegos/:id/logros/:logroId` | Marca un logro como obtenido o pendiente. El cuerpo acepta `{ "obtenido": true }` o `false`. |
 
 Ejemplo de cuerpo para crear un videojuego:
 
@@ -262,10 +264,23 @@ Abrir en el navegador la dirección local que indique Vite (normalmente `http://
 
 ### Funcionalidades actuales del frontend
 
-- La página inicial lista videojuegos y permite filtrarlos por estado.
-- Cada tarjeta muestra plataforma, género y el conteo de logros obtenidos.
-- El cliente del frontend consulta y crea videojuegos mediante la API.
-- Las rutas para crear y ver detalles de videojuegos, además de la sección de partidas, todavía muestran pantallas provisionales; esas operaciones aún no están disponibles desde la interfaz.
+- La página inicial muestra el catálogo y permite filtrarlo por estado. Las tarjetas muestran plataforma, género y el conteo de logros obtenidos.
+- Se pueden crear y editar videojuegos, incluidos sus logros.
+- El detalle de cada videojuego muestra su resumen de progreso y el historial de partidas; desde ahí se puede marcar o desmarcar cada logro y abrir el formulario para registrar una partida.
+- El formulario de partidas permite seleccionar un videojuego, una fecha (por defecto, la fecha local actual), la duración en minutos y el porcentaje de avance. Valida que la duración sea un entero mayor que cero y que el avance esté entre 0 y 100. Al guardar, vuelve al detalle del videojuego para consultar las estadísticas actualizadas.
+- Desde el detalle, el formulario de partidas puede abrirse con el videojuego ya seleccionado mediante `?videojuego=ID`.
+- La ruta `/partidas/nueva` permite registrar una partida. La ruta `/partidas` todavía muestra una pantalla provisional; el listado general y la administración de partidas no están disponibles en esa pantalla.
+
+### Rutas principales del frontend
+
+| Ruta | Pantalla |
+|---|---|
+| `/` | Catálogo filtrable de videojuegos. |
+| `/videojuegos/nuevo` | Formulario para crear un videojuego. |
+| `/videojuegos/:id` | Detalle, resumen, logros e historial de partidas. |
+| `/videojuegos/:id/editar` | Formulario para editar un videojuego. |
+| `/partidas/nueva` | Formulario para registrar una partida. |
+| `/partidas` | Pantalla provisional; el listado general está pendiente. |
 
 ## 8. Despliegue
 
@@ -274,6 +289,6 @@ Abrir en el navegador la dirección local que indique Vite (normalmente `http://
 
 ## 9. Estado del proyecto
 
-**En desarrollo.** El backend ofrece endpoints para videojuegos, partidas y resúmenes de progreso. El frontend cuenta con un listado filtrable de videojuegos; las pantallas de creación, detalle y partidas están pendientes.
+**En desarrollo.** El backend ofrece endpoints para videojuegos, partidas y resúmenes de progreso. El frontend ya permite consultar el catálogo, crear y editar videojuegos, revisar su detalle y registrar partidas; el listado general de partidas sigue pendiente.
 
 Las funcionalidades y secciones pendientes se actualizarán conforme avance la implementación.

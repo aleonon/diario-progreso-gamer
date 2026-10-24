@@ -10,6 +10,9 @@ import VideojuegosPage from "./pages/VideojuegosPage";
 import VideojuegoFormPage from "./pages/VideojuegoFormPage";
 import VideojuegoDetallePage from "./pages/VideojuegoDetallePage";
 
+import PartidaFormPage from "./pages/PartidaFormPage";
+
+
 
 
 
@@ -58,10 +61,12 @@ export default function App() {
           element={<PaginaPendiente />}
         />
 
+
         <Route
           path="/partidas/nueva"
-          element={<PaginaPendiente />}
+          element={<PartidaFormPage />}
         />
+
 
         <Route
           path="*"
