@@ -349,3 +349,47 @@ select {
     padding: 18px;
   }
 }
+
+.boton-eliminar {
+  background: #542d39;
+  color: #ffb8c6;
+  border: 1px solid #824659;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.boton-eliminar:hover:not(:disabled) {
+  background: #713748;
+}
+
+.boton-eliminar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tabla-partidas td {
+  vertical-align: middle;
+}
+
+.tabla-partidas a {
+  font-weight: 600;
+  color: #baa7ff;
+}
+
+.tabla-partidas a:hover {
+  text-decoration: underline;
+}
+
+.tabla-contenedor {
+  overflow-x: auto;
+}
+
+@media (max-width: 650px) {
+  .tabla-partidas {
+    min-width: 650px;
+  }
+}
+

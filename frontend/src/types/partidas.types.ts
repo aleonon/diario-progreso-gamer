@@ -1,6 +1,9 @@
+
+import type { Videojuego } from "./videojuego.types";
+
 export interface Partida {
   _id: string;
-  videojuego: string;
+  videojuego: string | Videojuego | null;
   fecha: string;
   duracionMinutos: number;
   porcentajeAvance: number;

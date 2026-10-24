@@ -11,22 +11,9 @@ import VideojuegoFormPage from "./pages/VideojuegoFormPage";
 import VideojuegoDetallePage from "./pages/VideojuegoDetallePage";
 
 import PartidaFormPage from "./pages/PartidaFormPage";
+import PartidasPage from "./pages/partidasPage";
 
 
-
-
-
-function PaginaPendiente() {
-  return (
-    <main className="contenedor">
-      <h1>Próximamente</h1>
-      <p>
-        Esta pantalla se implementará
-        en la siguiente etapa.
-      </p>
-    </main>
-  );
-}
 
 export default function App() {
   return (
@@ -56,10 +43,12 @@ export default function App() {
         />
 
 
+
         <Route
           path="/partidas"
-          element={<PaginaPendiente />}
+          element={<PartidasPage />}
         />
+
 
 
         <Route
