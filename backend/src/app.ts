@@ -20,17 +20,27 @@ app.use(logger);
 
 // 3. Configurar CORS y JSON
 
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    process.env.FRONTEND_URL
+].filter((origin): origin is string =>
+    typeof origin === "string" && origin.length > 0
+);
+
 app.use(cors({
-  origin: "http://localhost:5173"
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
 }));
+
 
 app.use(express.json());
 
 // 4. Ruta de comprobación
 app.get("/", (_req, res) => {
-  res.status(200).json({
-    mensaje: "API Diario Gamer funcionando"
-  });
+    res.status(200).json({
+        mensaje: "API Diario Gamer funcionando"
+    });
 });
 
 // 5. Rutas principales
@@ -39,11 +49,11 @@ app.use("/api/partidas", partidasRoutes);
 
 // 6. Gestionar rutas inexistentes
 app.use((req, res) => {
-  res.status(404).json({
-    mensaje: "Ruta no encontrada",
-    ruta: req.originalUrl,
-    requestId: res.locals.requestId
-  });
+    res.status(404).json({
+        mensaje: "Ruta no encontrada",
+        ruta: req.originalUrl,
+        requestId: res.locals.requestId
+    });
 });
 
 // 7. Middleware de errores

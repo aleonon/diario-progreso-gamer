@@ -1,198 +1,328 @@
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { videojuegosApi } from "../api/videojuegosApi";
 
 import type {
-    EstadoVideojuego,
-    Videojuego
+  Videojuego,
+  EstadoVideojuego
 } from "../types/videojuego.types";
 
-const estados: Array<{ valor: EstadoVideojuego | ""; etiqueta: string }> = [
-    { valor: "", etiqueta: "Todos" },
-    { valor: "jugando", etiqueta: "Jugando" },
-    { valor: "pausado", etiqueta: "Pausado" },
-    { valor: "completado", etiqueta: "Completado" },
-    { valor: "abandonado", etiqueta: "Abandonado" }
-];
-
 export default function VideojuegosPage() {
-    const [videojuegos, setVideojuegos] = useState<Videojuego[]>([]);
-    const [estado, setEstado] = useState<EstadoVideojuego | "">("");
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [reload, setReload] = useState(0);
+  // Videojuegos obtenidos de la API
+  const [videojuegos, setVideojuegos] =
+    useState<Videojuego[]>([]);
 
-    useEffect(() => {
-        let activo = true;
+  // Filtro seleccionado
+  const [estado, setEstado] =
+    useState<EstadoVideojuego | "">("");
 
-        async function cargarVideojuegos() {
-            setLoading(true);
-            setError(null);
+  // Estados de la interfaz
+  const [loading, setLoading] = useState(true);
+  const [error, setError] =
+    useState<string | null>(null);
 
-            try {
-                const datos = await videojuegosApi.listar(estado || undefined);
-                if (activo) setVideojuegos(datos);
-            } catch (err) {
-                if (activo) {
-                    setError(
-                        err instanceof Error
-                            ? err.message
-                            : "No se pudieron cargar los videojuegos"
-                    );
-                }
-            } finally {
-                if (activo) setLoading(false);
-            }
+  // Permite repetir una solicitud
+  const [recarga, setRecarga] = useState(0);
+
+  useEffect(() => {
+    let activo = true;
+
+    async function cargarVideojuegos() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // No enviar filtro cuando está en "Todos"
+        const datos = await videojuegosApi.listar(
+          estado || undefined
+        );
+
+        if (!activo) return;
+
+        console.log(
+          "Videojuegos recibidos desde la API:",
+          datos.length
+        );
+
+        setVideojuegos(datos);
+      } catch (err) {
+        if (!activo) return;
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "No se pudieron cargar los videojuegos"
+        );
+      } finally {
+        if (activo) {
+          setLoading(false);
         }
+      }
+    }
 
-        cargarVideojuegos();
-        return () => {
-            activo = false;
-        };
-    }, [estado, reload]);
+    cargarVideojuegos();
 
-    return (
-        <main className="contenedor">
-            <section className="hero">
-                <div className="hero-copy-wrap">
-                    <span className="eyebrow">Explora · organiza · vive tu historia</span>
-                    <h1 className="hero-title">
-                        Tu universo
-                        <span>gamer</span>
-                    </h1>
-                    <p className="hero-copy">
-                        Explora tu biblioteca, registra tus partidas y sigue tu progreso
-                        en todos tus videojuegos.
-                    </p>
-                    <Link to="/videojuegos/nuevo" className="boton">
-                        <span aria-hidden="true">＋</span> Nuevo videojuego
-                    </Link>
-                </div>
-                <div className="hero-art" aria-hidden="true">
-                    <div className="hero-orbit" />
-                    <div className="hero-device">✦</div>
-                </div>
-            </section>
+    return () => {
+      activo = false;
+    };
+  }, [estado, recarga]);
 
-            <section aria-labelledby="biblioteca-titulo">
-                <div className="biblioteca-heading">
-                    <h2 className="section-title" id="biblioteca-titulo">
-                        Mi biblioteca
-                    </h2>
-                </div>
+  // Calcular progreso de logros de cada videojuego
+  function obtenerProgreso(juego: Videojuego) {
+    const logros = juego.logros ?? [];
 
-                <div className="biblioteca-toolbar">
-                    <div className="filtros">
-                        <label htmlFor="estado">Filtrar por estado</label>
-                        <select
-                            id="estado"
-                            value={estado}
-                            onChange={(event) =>
-                                setEstado(event.target.value as EstadoVideojuego | "")
-                            }
+    const obtenidos = logros.filter(
+      logro => logro.obtenido
+    ).length;
+
+    const total = logros.length;
+
+    const porcentaje = total > 0
+      ? Math.round((obtenidos / total) * 100)
+      : 0;
+
+    return {
+      obtenidos,
+      total,
+      porcentaje
+    };
+  }
+
+  return (
+    <main className="contenedor catalogo-page">
+
+      {/* Hero principal */}
+      <section className="catalogo-hero">
+        <div className="catalogo-hero-contenido">
+          <span className="catalogo-eyebrow">
+            EXPLORA · ORGANIZA · VIVE TU HISTORIA
+          </span>
+
+          <h1>
+            Tu universo{" "}
+            <span className="texto-acento">
+              gamer
+            </span>
+          </h1>
+
+          <p>
+            Explora tu biblioteca, registra tus partidas
+            y sigue tu progreso en todos tus videojuegos.
+          </p>
+
+          <Link
+            to="/videojuegos/nuevo"
+            className="boton"
+          >
+            + Nuevo videojuego
+          </Link>
+        </div>
+
+        <div
+          className="catalogo-hero-decoracion"
+          aria-hidden="true"
+        >
+          <span>🎮</span>
+        </div>
+      </section>
+
+      {/* Encabezado del catálogo */}
+      <section className="catalogo-seccion">
+        <div className="catalogo-encabezado">
+          <div>
+            <h2>Mi biblioteca</h2>
+
+            <p className="texto-secundario">
+              {loading
+                ? "Cargando biblioteca..."
+                : `${videojuegos.length} videojuegos encontrados`}
+            </p>
+          </div>
+
+          <div className="catalogo-filtros">
+            <label htmlFor="filtro-estado">
+              Filtrar por estado
+            </label>
+
+            <select
+              id="filtro-estado"
+              value={estado}
+              onChange={(e) =>
+                setEstado(
+                  e.target.value as EstadoVideojuego | ""
+                )
+              }
+            >
+              <option value="">Todos</option>
+              <option value="jugando">Jugando</option>
+              <option value="pausado">Pausado</option>
+              <option value="completado">
+                Completado
+              </option>
+              <option value="abandonado">
+                Abandonado
+              </option>
+            </select>
+          </div>
+        </div>
+
+        {/* Estado de carga */}
+        {loading && (
+          <div className="catalogo-mensaje" role="status">
+            <p>Cargando videojuegos...</p>
+          </div>
+        )}
+
+        {/* Estado de error */}
+        {!loading && error && (
+          <div
+            className="mensaje-error"
+            role="alert"
+          >
+            <p>{error}</p>
+
+            <button
+              type="button"
+              className="boton"
+              onClick={() =>
+                setRecarga(valor => valor + 1)
+              }
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
+
+        {/* Estado vacío */}
+        {!loading && !error &&
+          videojuegos.length === 0 && (
+            <div className="catalogo-mensaje">
+              <h3>No se encontraron videojuegos</h3>
+
+              <p>
+                {estado
+                  ? "No hay videojuegos con el estado seleccionado."
+                  : "Tu biblioteca todavía está vacía."}
+              </p>
+
+              {estado ? (
+                <button
+                  type="button"
+                  className="boton"
+                  onClick={() => setEstado("")}
+                >
+                  Mostrar todos
+                </button>
+              ) : (
+                <Link
+                  to="/videojuegos/nuevo"
+                  className="boton"
+                >
+                  Agregar primer videojuego
+                </Link>
+              )}
+            </div>
+          )}
+
+        {/* Catálogo completo */}
+        {!loading && !error &&
+          videojuegos.length > 0 && (
+            <div className="grid-videojuegos">
+              {videojuegos.map((juego) => {
+                const progreso =
+                  obtenerProgreso(juego);
+
+                return (
+                  <article
+                    key={juego._id}
+                    className="tarjeta tarjeta-videojuego"
+                  >
+                    {/* Imagen decorativa */}
+                    <div className="tarjeta-imagen">
+                      <span
+                        className={`estado-badge estado-${juego.estado}`}
+                      >
+                        {juego.estado}
+                      </span>
+
+                      <span
+                        className="tarjeta-placeholder"
+                        aria-hidden="true"
+                      >
+                        🎮
+                      </span>
+                    </div>
+
+                    {/* Información */}
+                    <div className="tarjeta-contenido">
+                      <h3>{juego.nombre}</h3>
+
+                      <p className="tarjeta-metadata">
+                        {juego.plataforma}
+                        {" · "}
+                        {juego.genero}
+                      </p>
+
+                      {/* Progreso de logros */}
+                      <div className="tarjeta-progreso">
+                        <div className="tarjeta-progreso-info">
+                          <span>Logros</span>
+
+                          <span>
+                            {progreso.obtenidos}/
+                            {progreso.total}
+                          </span>
+                        </div>
+
+                        <div
+                          className="barra-progreso"
+                          role="progressbar"
+                          aria-label={`Logros de ${juego.nombre}`}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={
+                            progreso.porcentaje
+                          }
                         >
-                            {estados.map((opcion) => (
-                                <option key={opcion.etiqueta} value={opcion.valor}>
-                                    {opcion.etiqueta}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    {!loading && !error && (
-                        <span className="result-count">
-                            {videojuegos.length} {videojuegos.length === 1 ? "juego" : "juegos"}
+                          <div
+                            className="barra-progreso-valor"
+                            style={{
+                              width:
+                                `${progreso.porcentaje}%`
+                            }}
+                          />
+                        </div>
+
+                        <span className="tarjeta-porcentaje">
+                          {progreso.porcentaje}%
                         </span>
-                    )}
-                </div>
+                      </div>
 
-                {loading && (
-                    <div className="loading-pulse" role="status" aria-label="Cargando videojuegos" />
-                )}
+                      {/* Acciones */}
+                      <div className="tarjeta-acciones">
+                        <Link
+                          to={`/videojuegos/${juego._id}`}
+                          className="boton"
+                        >
+                          Ver detalle →
+                        </Link>
 
-                {!loading && error && (
-                    <div className="state-panel" role="alert">
-                        <h2>No se pudo cargar la biblioteca</h2>
-                        <p>{error}</p>
-                        <button className="button-secondary" onClick={() => setReload((value) => value + 1)}>
-                            Intentar de nuevo
-                        </button>
+                        <Link
+                          to={`/videojuegos/${juego._id}/editar`}
+                          className="boton-secundario"
+                        >
+                          Editar
+                        </Link>
+                      </div>
                     </div>
-                )}
-
-                {!loading && !error && videojuegos.length === 0 && (
-                    <div className="empty-state">
-                        <h2>{estado ? "No hay juegos con este estado" : "Tu biblioteca empieza aquí"}</h2>
-                        <p>
-                            {estado
-                                ? "Prueba otro filtro o revisa más tarde."
-                                : "Agrega tu primer videojuego para empezar a registrar tu progreso."}
-                        </p>
-                        {estado ? (
-                            <button className="button-secondary" onClick={() => setEstado("")}>
-                                Ver todos
-                            </button>
-                        ) : (
-                            <Link to="/videojuegos/nuevo" className="boton">
-                                ＋ Agregar videojuego
-                            </Link>
-                        )}
-                    </div>
-                )}
-
-                {!loading && !error && videojuegos.length > 0 && (
-                    <div className="grid-videojuegos">
-                        {videojuegos.map((juego) => {
-                            const logros = juego.logros ?? [];
-                            const obtenidos = logros.filter((logro) => logro.obtenido).length;
-                            const porcentajeLogros = logros.length
-                                ? Math.round((obtenidos / logros.length) * 100)
-                                : 0;
-
-                            return (
-                                <article className="tarjeta" key={juego._id}>
-                                    <div className="tarjeta-imagen">
-                                        <span className={`etiqueta status-${juego.estado}`}>
-                                            {juego.estado}
-                                        </span>
-                                        <span className="cover-symbol" aria-hidden="true">✦</span>
-                                    </div>
-                                    <div className="tarjeta-contenido">
-                                        <h2 title={juego.nombre}>{juego.nombre}</h2>
-                                        <div className="tarjeta-meta">
-                                            <span>{juego.plataforma}</span>
-                                            <span aria-hidden="true">·</span>
-                                            <span>{juego.genero}</span>
-                                        </div>
-                                        <div className="achievement-label">
-                                            <span>Logros</span>
-                                            <strong>{obtenidos}/{logros.length}</strong>
-                                        </div>
-                                        <div
-                                            className="progress-track"
-                                            role="progressbar"
-                                            aria-label={`Logros obtenidos de ${juego.nombre}`}
-                                            aria-valuemin={0}
-                                            aria-valuemax={100}
-                                            aria-valuenow={porcentajeLogros}
-                                        >
-                                            <div className="progress-fill" style={{ width: `${porcentajeLogros}%` }} />
-                                        </div>
-                                        <div className="card-actions">
-                                            <Link to={`/videojuegos/${juego._id}`} className="boton">
-                                                Ver detalle →
-                                            </Link>
-                                            <Link to={`/videojuegos/${juego._id}/editar`} className="button-secondary">
-                                                Editar
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </article>
-                            );
-                        })}
-                    </div>
-                )}
-            </section>
-        </main>
-    );
+                  </article>
+                );
+              })}
+            </div>
+          )}
+      </section>
+    </main>
+  );
 }
