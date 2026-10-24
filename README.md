@@ -1,5 +1,9 @@
 # Diario de Progreso Gamer
 
+# RENDER
+Backend: https://diario-progreso-gamer-2on6.onrender.com
+Frontend: https://diario-progreso-gamer-1-gqpr.onrender.com
+
 ## 1. Descripción del proyecto
 
 Diario de Progreso Gamer es una aplicación web diseñada para registrar videojuegos, almacenar sesiones de juego y consultar estadísticas de progreso.
