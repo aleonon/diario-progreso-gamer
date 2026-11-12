@@ -2,7 +2,8 @@
 // Se ejecuta sin base de datos: validarDatosMeta no usa Mongoose ni Express.
 import { describe, expect, it } from "vitest";
 
-import { DatosMetaInvalidos, validarDatosMeta } from "../../src/services/metas.service.js";
+import { DatosMetaInvalidos } from "../../src/errors/index.js";
+import { validarDatosMeta } from "../../src/services/metas.service.js";
 
 const base = { horasSemanales: 5, diasPorSemana: 4 };
 const hito = (porcentajeObjetivo: number, descripcion = `Llegar al ${porcentajeObjetivo} %`) => ({

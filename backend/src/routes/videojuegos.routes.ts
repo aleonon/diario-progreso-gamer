@@ -2,6 +2,7 @@
 import { Router } from "express";
 import * as controller from "../controllers/videojuegos.controller.js";
 import * as partidasController from "../controllers/partidas.controller.js";
+import * as metasController from "../controllers/metas.controller.js";
 
 
 const router = Router();
@@ -31,6 +32,17 @@ router.get(
 router.patch(
   "/:id/logros/:logroId",
   controller.actualizarLogro
+);
+
+// Metas del videojuego (E2 · T-14, T-15)
+router.post(
+  "/:id/metas",
+  metasController.crear
+);
+
+router.get(
+  "/:id/metas",
+  metasController.listarPorVideojuego
 );
 
 

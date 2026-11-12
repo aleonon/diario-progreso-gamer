@@ -1,17 +1,21 @@
-// Servicio de metas · E2.
+// Servicio de metas · E2 (spec backend §5).
 // T-13: validador puro del cuerpo (RB-03, RB-04, RB-07, RB-08).
-// Las operaciones del CRUD (crear, consultar, listar, editar, desactivar) llegan en T-14 a T-17.
-// El validador no importa el modelo ni Mongoose (RB-08); el límite viene de los tipos compartidos.
-import { MAX_HITOS, type HitoDTO, type MetaDTO } from "../types/meta.types.js";
+// T-14 a T-17: crear, consultar, listar, editar y desactivar (H-1 a H-5).
+// validarDatosMeta no usa Mongoose (RB-08): solo depende de los tipos compartidos.
+import mongoose from "mongoose";
 
-// Sigue el patrón actual de E1 (como DatosPartidaInvalidos): la clase vive en su servicio.
-// T-05 la moverá a src/errors/ como subclase de SolicitudInvalida (RB-33).
-export class DatosMetaInvalidos extends Error {
-  constructor(mensaje: string) {
-    super(mensaje);
-    this.name = "DatosMetaInvalidos";
-  }
-}
+import { Meta } from "../models/meta.js";
+import { Videojuego } from "../models/videojuego.js";
+import {
+  DatosMetaInvalidos,
+  IdInvalido,
+  MetaActivaDuplicada,
+  MetaDesactivada,
+  MetaNoEncontrada,
+  VideojuegoCerrado,
+  VideojuegoNoEncontrado
+} from "../errors/index.js";
+import { MAX_HITOS, type HitoDTO, type MetaDTO } from "../types/meta.types.js";
 
 const CAMPOS_META = ["horasSemanales", "diasPorSemana", "hitos"];
 const CAMPOS_HITO = ["descripcion", "porcentajeObjetivo"];
@@ -110,3 +114,133 @@ export function validarDatosMeta(datos: unknown, modo: "crear" | "editar"): Meta
     hitos: hitosEntrada.map(validarHito)
   };
 }
+
+// ── CRUD (T-14 a T-17) ──────────────────────────────────────
+
+const ESTADOS_CON_META = ["jugando", "pausado"];
+
+// Igual que en E1; la duplicación de validarId está diferida en el backlog §6.
+const validarId = (id: string): void => {
+  if (!mongoose.isObjectIdOrHexString(id)) {
+    throw new IdInvalido();
+  }
+};
+
+const esClaveDuplicada = (error: unknown): boolean =>
+  typeof error === "object" && error !== null && "code" in error && error.code === 11000;
+
+/**
+ * T-14 · H-1 · Crea la meta activa de un videojuego.
+ * Orden de comprobaciones (spec §5): id → cuerpo → videojuego existe → estado → meta activa previa.
+ */
+export const crearMeta = async (videojuegoId: string, datos: unknown) => {
+  validarId(videojuegoId);
+  const meta = validarDatosMeta(datos, "crear");
+
+  const videojuego = await Videojuego.findById(videojuegoId);
+
+  if (!videojuego) {
+    throw new VideojuegoNoEncontrado();
+  }
+
+  if (!ESTADOS_CON_META.includes(videojuego.estado)) {
+    throw new VideojuegoCerrado(); // RB-06 · D-07
+  }
+
+  if (await Meta.exists({ videojuego: videojuegoId, activa: true })) {
+    throw new MetaActivaDuplicada(); // RB-01
+  }
+
+  try {
+    return await Meta.create({ ...meta, videojuego: videojuegoId });
+  } catch (error) {
+    // RB-02 · Dos creaciones simultáneas pasan la comprobación previa;
+    // el índice único parcial rechaza la segunda con el código 11000.
+    if (esClaveDuplicada(error)) {
+      throw new MetaActivaDuplicada();
+    }
+    throw error;
+  }
+};
+
+/** T-15 · H-3 · Consulta una meta por su id. */
+export const obtenerMeta = async (metaId: string) => {
+  validarId(metaId);
+
+  const meta = await Meta.findById(metaId);
+
+  if (!meta) {
+    throw new MetaNoEncontrada();
+  }
+
+  return meta;
+};
+
+/** T-15 · H-2 · Lista todas las metas de un videojuego: la activa primero, luego las más recientes (RB-09). */
+export const listarMetas = async (videojuegoId: string) => {
+  validarId(videojuegoId);
+
+  if (!(await Videojuego.exists({ _id: videojuegoId }))) {
+    throw new VideojuegoNoEncontrado();
+  }
+
+  return await Meta.find({ videojuego: videojuegoId }).sort({ activa: -1, createdAt: -1, _id: -1 });
+};
+
+/**
+ * T-16 · H-4 · Reemplaza horas, días e hitos de la meta activa (RB-10).
+ * La escritura está condicionada a activa: true en la misma operación, así que una
+ * desactivación simultánea no se pierde ni se sobrescribe.
+ */
+export const editarMeta = async (metaId: string, datos: unknown) => {
+  validarId(metaId);
+  const cambios = validarDatosMeta(datos, "editar");
+
+  const existente = await Meta.findById(metaId);
+
+  if (!existente) {
+    throw new MetaNoEncontrada();
+  }
+
+  const mensajeDesactivada = "Las metas desactivadas no se pueden editar";
+
+  if (!existente.activa) {
+    throw new MetaDesactivada(mensajeDesactivada); // RB-11 · D-11
+  }
+
+  const actualizada = await Meta.findOneAndUpdate(
+    { _id: metaId, activa: true },
+    { $set: cambios },
+    { returnDocument: "after", runValidators: true } // RB-37
+  );
+
+  if (!actualizada) {
+    throw new MetaDesactivada(mensajeDesactivada);
+  }
+
+  return actualizada;
+};
+
+/**
+ * T-17 · H-5 · Desactiva la meta activa sin borrarla (RB-12).
+ * Operación atómica: solo cambia la meta si sigue activa.
+ */
+export const desactivarMeta = async (metaId: string) => {
+  validarId(metaId);
+
+  const desactivada = await Meta.findOneAndUpdate(
+    { _id: metaId, activa: true },
+    { $set: { activa: false } },
+    { returnDocument: "after" } // RB-37
+  );
+
+  if (desactivada) {
+    return desactivada;
+  }
+
+  if (!(await Meta.exists({ _id: metaId }))) {
+    throw new MetaNoEncontrada();
+  }
+
+  throw new MetaDesactivada("La meta ya está desactivada"); // RB-13
+};

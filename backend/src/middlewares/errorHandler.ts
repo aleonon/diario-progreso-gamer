@@ -8,18 +8,17 @@ import type {
 import mongoose from "mongoose";
 
 import {
-  IdInvalido,
-  VideojuegoNoEncontrado,
-  VideojuegoConPartidas,
-  LogroNoEncontrado,
-  DatosLogroInvalidos
-} from "../services/videojuegos.service.js";
+  SolicitudInvalida,
+  RecursoNoEncontrado,
+  Conflicto,
+  MetaActivaDuplicada
+} from "../errors/index.js";
 
-import {
-  PartidaNoEncontrada,
-  DatosPartidaInvalidos
-} from "../services/partidas.service.js";
+const esClaveDuplicada = (error: unknown): boolean =>
+  typeof error === "object" && error !== null && "code" in error && error.code === 11000;
 
+// T-05 · El código HTTP se decide por la categoría del error (spec backend RB-33),
+// no por cada clase concreta. Forma de respuesta: { mensaje, requestId } (RB-36).
 export const errorHandler = (
   error: unknown,
   _req: Request,
@@ -28,64 +27,45 @@ export const errorHandler = (
 ): void => {
   const requestId = res.locals.requestId;
 
-  // ID con formato inválido
-  if (error instanceof IdInvalido) {
-    res.status(400).json({
-      mensaje: error.message,
-      requestId
-    });
-    return;
-  }
+  const responder = (status: number, mensaje: string) => {
+    res.status(status).json({ mensaje, requestId });
+  };
 
-  // Validaciones de datos
+  // 400 · Datos o identificadores inválidos
   if (
-    error instanceof DatosPartidaInvalidos ||
-    error instanceof DatosLogroInvalidos ||
+    error instanceof SolicitudInvalida ||
     error instanceof mongoose.Error.ValidationError ||
     error instanceof mongoose.Error.CastError ||
-    error instanceof SyntaxError &&
-      "body" in error
+    (error instanceof SyntaxError && "body" in error)
   ) {
-    res.status(400).json({
-      mensaje: error instanceof Error
-        ? error.message
-        : "Solicitud inválida",
-      requestId
-    });
+    responder(400, error.message);
     return;
   }
 
-  // Recursos inexistentes
-  if (
-    error instanceof VideojuegoNoEncontrado ||
-    error instanceof PartidaNoEncontrada ||
-    error instanceof LogroNoEncontrado
-  ) {
-    res.status(404).json({
-      mensaje: error.message,
-      requestId
-    });
+  // 404 · Recursos inexistentes
+  if (error instanceof RecursoNoEncontrado) {
+    responder(404, error.message);
     return;
   }
 
-  // Integridad referencial
-  if (error instanceof VideojuegoConPartidas) {
-    res.status(409).json({
-      mensaje: error.message,
-      requestId
-    });
+  // 409 · Conflictos con el estado actual (integridad referencial, metas activas…)
+  if (error instanceof Conflicto) {
+    responder(409, error.message);
     return;
   }
 
-  // Error inesperado
+  // 409 · Defensa (RB-02): el único índice único de la app es el de una meta activa
+  // por videojuego. El servicio ya convierte el 11000; esto cubre cualquier escritura futura.
+  if (esClaveDuplicada(error)) {
+    responder(409, new MetaActivaDuplicada().message);
+    return;
+  }
+
+  // 500 · Error inesperado: se registra completo, pero no se expone (RB-35)
   console.error(
     `[${requestId}] Error inesperado:`,
     error
   );
 
-  res.status(500).json({
-    mensaje: "Error interno del servidor",
-    requestId
-  });
+  responder(500, "Error interno del servidor");
 };
-

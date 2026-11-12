@@ -5,6 +5,7 @@ import cors from "cors";
 
 import videojuegosRoutes from "./routes/videojuegos.routes.js";
 import partidasRoutes from "./routes/partidas.routes.js";
+import metasRoutes from "./routes/metas.routes.js";
 
 import { requestId } from "./middlewares/requestId.js";
 import { logger } from "./middlewares/logger.js";
@@ -46,6 +47,7 @@ app.get("/", (_req, res) => {
 // 5. Rutas principales
 app.use("/api/videojuegos", videojuegosRoutes);
 app.use("/api/partidas", partidasRoutes);
+app.use("/api/metas", metasRoutes);
 
 // 6. Gestionar rutas inexistentes
 app.use((req, res) => {

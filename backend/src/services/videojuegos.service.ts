@@ -3,46 +3,14 @@ import mongoose from "mongoose";
 //por el formato en from "../" son dos puntos, no tres
 import { Videojuego } from "../models/videojuego.js";
 import { Partida } from "../models/partida.js";
+import {
+    IdInvalido,
+    VideojuegoNoEncontrado,
+    VideojuegoConPartidas,
+    LogroNoEncontrado,
+    DatosLogroInvalidos
+} from "../errors/index.js";
 
-
-export class VideojuegoNoEncontrado extends Error {
-    constructor() {
-        super("Videojuego no encontrado");
-        this.name = "VideojuegoNoEncontrado";
-    }
-}
-
-export class IdInvalido extends Error {
-    constructor() {
-        super("El ID proporcionado no es válido");
-        this.name = "IdInvalido";
-    }
-}
-
-export class VideojuegoConPartidas extends Error {
-    constructor() {
-        super(
-            "No se puede eliminar el videojuego porque tiene partidas registradas"
-        );
-        this.name = "VideojuegoConPartidas";
-    }
-}
-
-export class LogroNoEncontrado extends Error {
-    constructor() {
-        super("Logro no encontrado");
-        this.name = "LogroNoEncontrado";
-    }
-}
-
-export class DatosLogroInvalidos extends Error {
-  constructor() {
-    super(
-      "El campo obtenido debe ser verdadero o falso"
-    );
-    this.name = "DatosLogroInvalidos";
-  }
-}
 
 const validarId = (id: string) => {
     if (!mongoose.isObjectIdOrHexString(id)) {

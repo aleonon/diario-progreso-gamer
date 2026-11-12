@@ -6,8 +6,10 @@ import { Videojuego } from "../models/videojuego.js";
 
 import {
     IdInvalido,
-    VideojuegoNoEncontrado
-} from "./videojuegos.service.js";
+    VideojuegoNoEncontrado,
+    PartidaNoEncontrada,
+    DatosPartidaInvalidos
+} from "../errors/index.js";
 
 
 import type {
@@ -15,27 +17,12 @@ import type {
 } from "../types/partida.types.js";
 
 
-// Error específico para partidas
-export class PartidaNoEncontrada extends Error {
-    constructor() {
-        super("Partida no encontrada");
-        this.name = "PartidaNoEncontrada";
-    }
-}
-
 // Validar ID
 const validarId = (id: string) => {
     if (!mongoose.isObjectIdOrHexString(id)) {
         throw new IdInvalido();
     }
 };
-
-export class DatosPartidaInvalidos extends Error {
-    constructor(mensaje: string) {
-        super(mensaje);
-        this.name = "DatosPartidaInvalidos";
-    }
-}
 
 // GET: todas las partidas
 export const listarPartidas = async () => {
