@@ -6,9 +6,9 @@ E2 responde «¿cumplo mi meta semanal y cuántos días seguidos llevo jugando?�
 Proceso SDD: diagnóstico → harness → PRD → épica → historias → criterios → tickets → specs → código con tests → auditoría.
 
 ## Stack
-- Backend: Node 20+, Express 5, TypeScript (NodeNext, CommonJS), Mongoose 9, MongoDB Atlas.
+- Backend: Node 20+, Express 5, TypeScript (NodeNext, CommonJS) , Mongoose 9, MongoDB Atlas.
 - Frontend: React 19, TypeScript, Vite 8, React Router 7, CSS propio (sin librerías de UI).
-- Tests: Vitest en `backend/` (se configura en el primer ticket de backend). Despliegue: Render.
+- Tests: Vitest + Supertest + MongoDB en memoria en `backend/tests/` (sin Atlas ni `.env`). Despliegue: Render.
 
 ## Estructura
 - `backend/src/`: `models/`, `services/` (lógica y errores), `controllers/`, `routes/`, `middlewares/`, `config/`.
@@ -19,7 +19,7 @@ Proceso SDD: diagnóstico → harness → PRD → épica → historias → crite
 ## Comandos
 - Backend: `cd backend && npm run dev` · `npm run build` · `npm test`.
 - Frontend: `cd frontend && npm run dev` · `npm run build` · `npm run lint`.
-- Mientras `npm test` no exista: `npm run build` en backend, y `npm run build` y `npm run lint` en frontend.
+- Antes de cerrar una tarea: `npm test` y `npm run build` en backend; `npm run build` y `npm run lint` en frontend.
 
 ## Convenciones
 - Código y textos en español. Imports del backend con extensión `.js`.
