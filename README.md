@@ -184,6 +184,8 @@ Todos los campos son obligatorios y no se aceptan campos adicionales. `videojueg
 - `400 Bad Request`: ID con formato inválido, filtro `estado` no permitido o datos que no cumplen las validaciones del modelo.
 - `404 Not Found`: no existe el videojuego o la partida solicitada.
 - `409 Conflict`: no se puede eliminar un videojuego que todavía tiene partidas asociadas.
+- `413 Payload Too Large`: el cuerpo JSON supera el límite permitido.
+- `415 Unsupported Media Type`: el juego de caracteres o la codificación del cuerpo JSON no es compatible.
 - `500 Internal Server Error`: error inesperado del servidor.
 
 ## Middlewares del backend
@@ -216,6 +218,8 @@ Centraliza el manejo de errores de la aplicación.
 | 400    | Datos o identificadores inválidos                |
 | 404    | Recurso o ruta inexistente                       |
 | 409    | Conflicto por partidas asociadas a un videojuego |
+| 413    | Cuerpo de la solicitud demasiado grande          |
+| 415    | Codificación o juego de caracteres no compatible |
 | 500    | Error interno del servidor                       |
 
 Las respuestas de error contienen el identificador de la solicitud para facilitar el diagnóstico.
@@ -295,7 +299,9 @@ También se puede copiar `frontend/.env.example` a `frontend/.env` y ajustar `VI
 
 ## 8. Despliegue
 
-El despliegue de producción está pendiente. Antes de publicar, configura `MONGODB_URI`, `PORT`, `FRONTEND_URL`, `VITE_API_URL` y los dominios correspondientes al entorno.
+La versión del Proyecto 3 (épica E1) está publicada en Render, en las URLs indicadas al inicio de este archivo. La épica E2 (metas y rachas) todavía no está desplegada.
+
+Para publicar, configura en Render `MONGODB_URI`, `PORT` y `FRONTEND_URL` en el backend, y `VITE_API_URL` en el frontend.
 
 ## 9. Verificación
 
@@ -314,6 +320,6 @@ npm run build
 
 ## 10. Estado del proyecto
 
-**En desarrollo.** La aplicación permite gestionar videojuegos, logros y partidas, consultar el historial y visualizar estadísticas calculadas por el backend. La publicación en un entorno de producción sigue pendiente.
+**En desarrollo.** La aplicación permite gestionar videojuegos, logros y partidas, consultar el historial y visualizar estadísticas calculadas por el backend. Esa versión está publicada en Render; la épica E2 todavía no está desplegada.
 
 Las funciones disponibles y los pasos de configuración se documentan en este archivo conforme evoluciona el proyecto.

@@ -63,6 +63,19 @@ export class LogroNoEncontrado extends RecursoNoEncontrado {
   }
 }
 
+// T-32 · DT-3: antes se respondían directamente desde el controlador, sin requestId (RB-36).
+export class FiltroEstadoInvalido extends SolicitudInvalida {
+  constructor() {
+    super("Filtro estado no válido");
+  }
+}
+
+export class CamposLogroNoPermitidos extends SolicitudInvalida {
+  constructor() {
+    super("Solo se permite el campo obtenido");
+  }
+}
+
 export class VideojuegoConPartidas extends Conflicto {
   constructor() {
     super("No se puede eliminar el videojuego porque tiene partidas registradas");

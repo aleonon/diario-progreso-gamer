@@ -17,6 +17,18 @@ import {
 const esClaveDuplicada = (error: unknown): boolean =>
   typeof error === "object" && error !== null && "code" in error && error.code === 11000;
 
+// T-06 · DT-2 (RB-34): errores que lanza express.json() antes de llegar a los controladores.
+const ERRORES_PARSER: Record<string, { status: number; mensaje: string }> = {
+  "entity.too.large": { status: 413, mensaje: "El cuerpo de la solicitud es demasiado grande" },
+  "encoding.unsupported": { status: 415, mensaje: "Codificación o juego de caracteres no compatible" },
+  "charset.unsupported": { status: 415, mensaje: "Codificación o juego de caracteres no compatible" }
+};
+
+const errorDelParser = (error: unknown) =>
+  typeof error === "object" && error !== null && "type" in error && typeof error.type === "string"
+    ? ERRORES_PARSER[error.type]
+    : undefined;
+
 // T-05 · El código HTTP se decide por la categoría del error (spec backend RB-33),
 // no por cada clase concreta. Forma de respuesta: { mensaje, requestId } (RB-36).
 export const errorHandler = (
@@ -30,6 +42,13 @@ export const errorHandler = (
   const responder = (status: number, mensaje: string) => {
     res.status(status).json({ mensaje, requestId });
   };
+
+  // 413 / 415 · Cuerpo demasiado grande o codificación no soportada (antes terminaban en 500)
+  const parser = errorDelParser(error);
+  if (parser) {
+    responder(parser.status, parser.mensaje);
+    return;
+  }
 
   // 400 · Datos o identificadores inválidos
   if (

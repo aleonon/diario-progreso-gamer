@@ -6,6 +6,10 @@ import type {
 } from "express";
 
 import * as service from "../services/videojuegos.service.js";
+import {
+    CamposLogroNoPermitidos,
+    FiltroEstadoInvalido
+} from "../errors/index.js";
 
 import type {
     EstadoVideojuego
@@ -49,10 +53,8 @@ export const listar = async (
                 ].includes(estado)
             )
         ) {
-            res.status(400).json({
-                mensaje: "Filtro estado no válido"
-            });
-            return;
+            // T-32 · DT-3: pasa por errorHandler para incluir requestId (RB-36).
+            throw new FiltroEstadoInvalido();
         }
 
         const videojuegos =
@@ -156,10 +158,8 @@ export const actualizarLogro = async (
         campo => campo !== "obtenido"
       )
     ) {
-      res.status(400).json({
-        mensaje: "Solo se permite el campo obtenido"
-      });
-      return;
+      // T-32 · DT-3: pasa por errorHandler para incluir requestId (RB-36).
+      throw new CamposLogroNoPermitidos();
     }
 
     const videojuego =

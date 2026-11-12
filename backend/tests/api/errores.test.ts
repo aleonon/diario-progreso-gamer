@@ -174,4 +174,111 @@ describe("T-05 errores de dominio", () => {
       expect(res.cuerpo).toEqual({ mensaje: "Error interno del servidor", requestId: "req-prueba" });
     });
   });
+
+  describe("T-06 · DT-2 errores del parser JSON (RB-34)", () => {
+    const juegoValido = () => crearJuego();
+
+    it("CA-DT2.1 un cuerpo mayor que el límite responde 413 y no 500", async () => {
+      const respuesta = await request(app)
+        .post("/api/partidas")
+        .set("Content-Type", "application/json")
+        .send(JSON.stringify({ relleno: "a".repeat(110_000) }));
+
+      esperarError(respuesta, 413, "El cuerpo de la solicitud es demasiado grande");
+    });
+
+    it("CA-DT2.2 un juego de caracteres no soportado responde 415 y no 500", async () => {
+      const respuesta = await request(app)
+        .post("/api/partidas")
+        .set("Content-Type", "application/json; charset=latin9")
+        .send(JSON.stringify({ videojuego: "x" }));
+
+      esperarError(respuesta, 415, "Codificación o juego de caracteres no compatible");
+    });
+
+    it("CA-DT2.2 una codificación de contenido no soportada responde 415 y no 500", async () => {
+      const respuesta = await request(app)
+        .post("/api/partidas")
+        .set("Content-Type", "application/json")
+        .set("Content-Encoding", "x-desconocida")
+        .send(JSON.stringify({ videojuego: "x" }));
+
+      esperarError(respuesta, 415, "Codificación o juego de caracteres no compatible");
+    });
+
+    it("CA-DT2.3 el JSON mal formado sigue respondiendo 400 (regresión)", async () => {
+      const respuesta = await request(app)
+        .post("/api/partidas")
+        .set("Content-Type", "application/json")
+        .send('{"videojuego": ');
+
+      expect(respuesta.status).toBe(400);
+      expect(typeof respuesta.body.requestId).toBe("string");
+    });
+
+    it("CA-DT2.3 un cuerpo válido sigue llegando al servicio (regresión)", async () => {
+      const juego = await juegoValido();
+
+      const respuesta = await request(app).post("/api/partidas").send({
+        videojuego: juego.id,
+        fecha: "2026-11-05",
+        duracionMinutos: 60,
+        porcentajeAvance: 10
+      });
+
+      expect(respuesta.status).toBe(201);
+    });
+  });
+
+  describe("T-32 · DT-3 errores 400 de controladores por el manejo centralizado (RB-36)", () => {
+    it("CA-DT3.1 un filtro de estado no permitido responde 400 con mensaje y requestId", async () => {
+      esperarError(await request(app).get("/api/videojuegos?estado=xyz"), 400, "Filtro estado no válido");
+    });
+
+    it("CA-DT3.2 un cambio de logro con campos extra responde 400 con mensaje y requestId", async () => {
+      const juego = await crearJuego();
+
+      esperarError(
+        await request(app)
+          .patch(`/api/videojuegos/${juego._id}/logros/${juego.logros[0]._id}`)
+          .send({ obtenido: true, extra: 1 }),
+        400,
+        "Solo se permite el campo obtenido"
+      );
+    });
+
+    it("CA-DT3.3 un filtro válido y la lista sin filtro responden igual que antes (regresión)", async () => {
+      await crearJuego();
+
+      const filtrado = await request(app).get("/api/videojuegos?estado=jugando");
+      const todos = await request(app).get("/api/videojuegos");
+      const vacio = await request(app).get("/api/videojuegos?estado=completado");
+
+      expect(filtrado.status).toBe(200);
+      expect(filtrado.body).toHaveLength(1);
+      expect(todos.status).toBe(200);
+      expect(todos.body).toHaveLength(1);
+      expect(vacio.body).toEqual([]);
+    });
+
+    it("CA-DT3.3 un cambio de logro válido sigue funcionando (regresión)", async () => {
+      const juego = await crearJuego();
+
+      const respuesta = await request(app)
+        .patch(`/api/videojuegos/${juego._id}/logros/${juego.logros[0]._id}`)
+        .send({ obtenido: true });
+
+      expect(respuesta.status).toBe(200);
+      expect(respuesta.body.logros[0].obtenido).toBe(true);
+    });
+
+    it("CA-DT1.2 los errores nuevos heredan de SolicitudInvalida", async () => {
+      const errores = await import("../../src/errors/index.js");
+
+      expect(new errores.FiltroEstadoInvalido()).toBeInstanceOf(errores.SolicitudInvalida);
+      expect(new errores.CamposLogroNoPermitidos()).toBeInstanceOf(errores.SolicitudInvalida);
+      expect(new errores.FiltroEstadoInvalido().message).toBe("Filtro estado no válido");
+      expect(new errores.CamposLogroNoPermitidos().message).toBe("Solo se permite el campo obtenido");
+    });
+  });
 });
