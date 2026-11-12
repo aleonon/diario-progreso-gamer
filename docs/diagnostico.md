@@ -134,3 +134,41 @@ El README lista las URLs de Render del backend y del frontend.
 3. Extraer el módulo `errors/` en el backend y `api/http.ts` en el frontend (B4 y B5).
 4. Alinear `errorHandler` con el README (B6).
 5. Después, implementar el modelo `Meta` y el cálculo de rachas.
+
+---
+
+## 5. Decisiones tomadas
+
+- **Registrado:** 11 de noviembre de 2026 (ticket T-01).
+- **Fuentes:** el enunciado del Proyecto 4, el PRD (`docs/prd/diario-gamer.md`) y el backlog (`docs/backlog/E2-metas-y-rachas.md`).
+
+La suposición de la sección 2 queda reemplazada por la ficha de hechos y el PRD.
+
+### 5.1 Problemas que bloqueaban E2
+
+| # | Decisión | Cómo se resuelve |
+|---|---|---|
+| B1 | **Se paga** como preparación | T-04: Vitest + Supertest + MongoDB en memoria en el backend |
+| B2 | **Resuelto por la ficha.** La semana va de lunes a domingo en `America/Guayaquil` | PRD RO-07. «Hoy» se calcula en hora de Ecuador. Las fechas de partida conservan la fecha registrada (D-03) |
+| B3 | **Resuelto por la ficha.** Las metas y rachas son por videojuego, con un único usuario | PRD RO-01, RO-11, S-01 |
+| B4 | **Se paga como deuda** (DT-1) | T-05: errores de dominio en un módulo común |
+| B5 | **Se difiere** | Pagarlo con el ciclo completo exigiría tests en el frontend. `metasApi.ts` repetirá el patrón actual (backlog §6) |
+| B6 | **Se paga como deuda** (DT-2) | T-06: respuestas 413/415 y README coherente |
+
+### 5.2 Cambios autorizados sobre E1
+
+El enunciado indica que Videojuego, Partida y el resumen de E1 no cambian, salvo que el diagnóstico decida lo contrario (PRD RO-20). Se autorizan solo estos dos cambios:
+
+| Cambio | Decisión del PRD | Ticket | Alcance del cambio |
+|---|---|---|---|
+| Al cambiar el estado de un videojuego a «completado» o «abandonado», su meta activa se desactiva | D-07 (y D-12) | T-19 | Solo se agrega un efecto después de editar un videojuego. La validación, la respuesta y el resto de la edición de E1 no cambian |
+| Al eliminar un videojuego se eliminan sus metas | D-08 | T-20 | Se mantiene el 409 si el juego tiene partidas. Solo se agrega el borrado de metas cuando la eliminación está permitida |
+
+El resto de E1 se mantiene sin cambios:
+- El modelo Partida, el registro y la eliminación de partidas.
+- El resumen `GET /api/videojuegos/:id/resumen`.
+- Los logros.
+
+### 5.3 Deuda diferida
+
+Todos los demás puntos de la sección 3 se difieren. Cada uno tiene su motivo en `docs/backlog/E2-metas-y-rachas.md` §6.
