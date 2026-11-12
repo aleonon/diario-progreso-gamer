@@ -1,21 +1,64 @@
-//Ruta TEMPORAL que comprueba el funcionamiento de EXPRESS
 
-//express -> servidor y rutas HTTP
+
 import express from "express";
-//Cors -> comunicación con el frontend
 import cors from "cors";
+
+import videojuegosRoutes from "./routes/videojuegos.routes.js";
+import partidasRoutes from "./routes/partidas.routes.js";
+import metasRoutes from "./routes/metas.routes.js";
+
+import { requestId } from "./middlewares/requestId.js";
+import { logger } from "./middlewares/logger.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 
-// Middlewares
-app.use(cors());
+// 1. Asignar identificador a cada solicitud
+app.use(requestId);
+
+// 2. Registrar solicitudes y respuestas
+app.use(logger);
+
+// 3. Configurar CORS y JSON
+
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    process.env.FRONTEND_URL
+].filter((origin): origin is string =>
+    typeof origin === "string" && origin.length > 0
+);
+
+app.use(cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+}));
+
+
 app.use(express.json());
 
-// Ruta de prueba
-app.get("/", (req, res) => {
-  res.json({
-    mensaje: "API Diario Gamer funcionando"
-  });
+// 4. Ruta de comprobación
+app.get("/", (_req, res) => {
+    res.status(200).json({
+        mensaje: "API Diario Gamer funcionando"
+    });
 });
+
+// 5. Rutas principales
+app.use("/api/videojuegos", videojuegosRoutes);
+app.use("/api/partidas", partidasRoutes);
+app.use("/api/metas", metasRoutes);
+
+// 6. Gestionar rutas inexistentes
+app.use((req, res) => {
+    res.status(404).json({
+        mensaje: "Ruta no encontrada",
+        ruta: req.originalUrl,
+        requestId: res.locals.requestId
+    });
+});
+
+// 7. Middleware de errores
+app.use(errorHandler);
 
 export default app;
