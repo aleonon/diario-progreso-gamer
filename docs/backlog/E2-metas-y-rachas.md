@@ -185,6 +185,14 @@ El enunciado exige pagar al menos dos problemas del diagnóstico con el ciclo co
 - **CA-DT2.2** — **DADO** una solicitud con una codificación o un juego de caracteres no soportado **CUANDO** llega al sistema **ENTONCES** se informa «tipo de contenido no soportado» (415) y no un error interno.
 - **CA-DT2.3** — **DADO** una solicitud con datos mal formados **CUANDO** llega al sistema **ENTONCES** se sigue informando como solicitud inválida (400), y la tabla de errores del README coincide con el comportamiento real.
 
+### DT-3 · Respuestas 400 de controladores sin identificador de solicitud (diagnóstico §3)
+
+Agregado en la fase 8 (pago de deuda técnica). Hace cumplir RB-36 de la spec de backend.
+
+- **CA-DT3.1** — **DADO** un filtro de estado no permitido (por ejemplo `xyz`) **CUANDO** se lista la biblioteca **ENTONCES** se informa «Filtro estado no válido» como solicitud inválida (400), junto con el identificador de la solicitud.
+- **CA-DT3.2** — **DADO** un cambio de logro con campos distintos de `obtenido` **CUANDO** se envía **ENTONCES** se informa «Solo se permite el campo obtenido» (400), junto con el identificador de la solicitud.
+- **CA-DT3.3** — **DADO** un filtro válido o sin filtro, y un cambio de logro válido **CUANDO** se envían **ENTONCES** las respuestas son las mismas que antes (sin regresión).
+
 ---
 
 ## 3. Tickets
@@ -264,6 +272,15 @@ El enunciado exige pagar al menos dos problemas del diagnóstico con el ciclo co
 - **Descripción:** que los errores de cuerpo demasiado grande y de codificación no soportada se informen con su código, y alinear la tabla de errores del README con el comportamiento real.
 - **Dependencias:** T-05.
 - **DoD:** un test por cada criterio, en verde, y el README revisado.
+
+#### T-32 · Errores 400 de controladores por el manejo centralizado
+
+- **Tipo:** backend.
+- **Historia:** DT-3 (diagnóstico §3, «Respuesta 400 inconsistente»).
+- **Criterios:** CA-DT3.1, CA-DT3.2, CA-DT3.3.
+- **Descripción:** que el filtro de estado inválido y el cambio de logro con campos extra lancen errores de dominio, en lugar de responder directamente desde el controlador, para que todas las respuestas de error incluyan el identificador de la solicitud.
+- **Dependencias:** T-05.
+- **DoD:** un test por criterio, en verde, y ningún controlador responde un 4xx directamente.
 
 ### Dominio: cálculos puros (primero el test, después el código)
 
@@ -530,7 +547,7 @@ El enunciado exige pagar al menos dos problemas del diagnóstico con el ciclo co
 | 1 | T-02 | T-01 |
 | 2 | T-03, T-04 | T-02 |
 | 3 | T-05, T-07, T-09, T-11, T-13, T-22 | T-04 (T-13 también T-02); T-22 solo necesita T-03 |
-| 4 | T-06, T-08, T-12, T-14, T-15, T-20 | Su test, o T-05 y T-13 |
+| 4 | T-06, T-08, T-12, T-14, T-15, T-20, T-32 | Su test, o T-05 y T-13 (T-32, agregado en la fase 8, solo depende de T-05) |
 | 5 | T-10, T-16, T-17 | T-09 y T-08 / T-15 |
 | 6 | T-18, T-19 | T-08, T-10, T-12 y T-15 / T-01 y T-17 |
 | 7 | T-21, T-23 | T-14 a T-20 / T-03 y T-18 |
@@ -564,6 +581,7 @@ El enunciado exige pagar al menos dos problemas del diagnóstico con el ciclo co
 | HU-12 Mensajes claros | CA-12.1 – CA-12.5 | T-14, T-15, T-17, T-18 |
 | DT-1 Errores en un módulo común | CA-DT1.1, CA-DT1.2 | T-05 |
 | DT-2 413/415 y README | CA-DT2.1 – CA-DT2.3 | T-06 |
+| DT-3 400 con identificador de solicitud | CA-DT3.1 – CA-DT3.3 | T-32 |
 | Proceso del enunciado | — | T-01 – T-04, T-21, T-22, T-23, T-28 – T-31 |
 
 ### 5.2 PRD → historias (cobertura)
@@ -628,21 +646,56 @@ Si se aprueban, conviene incorporarlas al PRD como reglas en una próxima versi�
 
 ### Pagada en E2
 
-| ID | Problema del diagnóstico | Ticket | Criterios |
-|---|---|---|---|
-| DT-1 | B4: los errores de dominio están acoplados a cada servicio | T-05 | CA-DT1.1, CA-DT1.2 |
-| DT-2 | B6: los errores 413/415 terminan en 500 y el README no coincide | T-06 | CA-DT2.1 – CA-DT2.3 |
+Las tres se pagaron con el ciclo completo: criterio → test que reproduce el problema (en rojo) → corrección mínima → verificación.
 
-B1 (no hay tests) se resuelve con T-04 como parte de la preparación. B2 y B3 quedan resueltos por la ficha (T-01).
+| | DT-1 | DT-2 | DT-3 |
+|---|---|---|---|
+| **Problema del diagnóstico** | B4 | B6 | §3 «Respuesta 400 inconsistente» |
+| **Ticket** | T-05 | T-06 | T-32 |
+| **Fase** | 6 (antes del CRUD) | 8 | 8 |
+
+#### DT-1 · Errores de dominio acoplados a cada servicio
+
+| Campo | Detalle |
+|---|---|
+| **Descripción** | `errorHandler` importaba las clases de error desde cada servicio, y `partidas.service` importaba errores de `videojuegos.service` |
+| **Causa** | Cada servicio declaraba sus propios errores, y el middleware decidía el código por clase concreta |
+| **Criterios** | CA-DT1.1, CA-DT1.2 |
+| **Test de regresión** | `backend/tests/api/errores.test.ts` → «T-05 errores de dominio» (8 tests de caracterización de E1 y 2 de estructura) |
+| **Archivos** | N `backend/src/errors/index.ts` · M `errorHandler.ts`, `videojuegos.service.ts`, `partidas.service.ts`, `metas.service.ts` |
+| **Verificación** | Rojo: `Cannot find module '/src/errors/index.js'`. Verde: 10/10. Suite completa: 106/106 en su momento. Un `grep` confirma que ningún servicio importa errores de otro |
+
+#### DT-2 · Respuestas 413/415 y README coherente
+
+| Campo | Detalle |
+|---|---|
+| **Descripción** | Un cuerpo de más de 100 kB, o un juego de caracteres o una codificación no soportados, respondían **500 «Error interno del servidor»**. Además, el README documentaba 413/415 y decía que el despliegue estaba pendiente, aunque listaba las URL de Render |
+| **Causa** | `express.json()` lanza errores con `type` `entity.too.large`, `charset.unsupported` o `encoding.unsupported`, que `errorHandler` no reconocía |
+| **Criterios** | CA-DT2.1, CA-DT2.2, CA-DT2.3 · RB-34 |
+| **Test de regresión** | `backend/tests/api/errores.test.ts` → «T-06 · DT-2 errores del parser JSON» (5 tests: 413, 415 por charset, 415 por codificación, JSON mal formado da 400, cuerpo válido da 201) |
+| **Archivos** | M `backend/src/middlewares/errorHandler.ts` (tabla `ERRORES_PARSER`) · M `backend/tests/api/errores.test.ts` · M `README.md` (tabla de errores, §8 y §10) |
+| **Verificación** | Rojo: `expected 500 to be 413` y dos veces `expected 500 to be 415`. Verde: 17/17 en `errores.test.ts`. Suite: **172/172**. `npm run build` en verde |
+
+#### DT-3 · Respuestas 400 de controladores sin identificador de solicitud
+
+| Campo | Detalle |
+|---|---|
+| **Descripción** | `GET /api/videojuegos?estado=xyz` y el `PATCH` de un logro con campos extra respondían `{ mensaje }` **sin `requestId`**, en contra de RB-36 y fuera del manejo centralizado |
+| **Causa** | `videojuegos.controller.ts` respondía `res.status(400).json(...)` directamente en dos puntos, en lugar de lanzar un error de dominio |
+| **Criterios** | CA-DT3.1, CA-DT3.2, CA-DT3.3 · RB-36 |
+| **Test de regresión** | `backend/tests/api/errores.test.ts` → «T-32 · DT-3» (5 tests: filtro inválido, logro con campos extra, filtro válido y sin filtro, logro válido, y herencia de las clases nuevas) |
+| **Archivos** | M `backend/src/errors/index.ts` (`FiltroEstadoInvalido`, `CamposLogroNoPermitidos`) · M `backend/src/controllers/videojuegos.controller.ts` · M `backend/tests/api/errores.test.ts` |
+| **Verificación** | Rojo: dos veces `expected 'undefined' to be 'string'` (faltaba `requestId`) y `FiltroEstadoInvalido is not a constructor`. Verde: 22/22. Suite: **177/177**. Ambos builds en verde. El lint del frontend no cambió. `grep "status(4" src/controllers` sale vacío |
+
+B1 (no hay tests) se resolvió con T-04 como parte de la preparación. B2 y B3 quedaron resueltos por la ficha (T-01).
 
 ### Diferida
 
 | Problema | Motivo para diferirlo |
 |---|---|
-| B5: cliente HTTP duplicado en el frontend | No bloquea E2. Pagarlo con el ciclo completo exigiría montar tests en el frontend, que E2 no requiere |
+| B5: cliente HTTP duplicado en el frontend (ya son **3 copias** de `procesarRespuesta`, con `metasApi.ts`) | No bloquea E2. Pagarlo con el ciclo completo exigiría montar tests en el frontend, que E2 no requiere |
 | Sin lista blanca de campos al crear o editar videojuegos | El modo estricto actual ya descarta los campos desconocidos. Cambiarlo toca E1 (RO-20) |
-| `validarId` duplicado y estados repetidos en varias capas | Es una duplicación sin impacto funcional. Se puede hacer al tocar esos archivos |
-| El error del filtro `estado` no incluye el identificador de solicitud | Afecta a una sola respuesta de E1 y no es parte de E2 |
+| `validarId` duplicado (ya son **3 copias**: videojuegos, partidas y metas) y estados repetidos en varias capas | Es un refactor sin un fallo observable que reproducir con un test. Se puede hacer al tocar esos archivos |
 | Log de base de datos antes de conectar y `FRONTEND_URL` leído antes de cargar la configuración | No afecta a producción y es difícil de probar con un test automatizado |
 | Falta un índice para consultar partidas por juego y fecha | Con el volumen actual no hay problema de rendimiento. Se reevalúa si crecen los datos |
 | El resumen carga todas las partidas; el historial no tiene paginación | Mismo motivo: no hay problema de volumen hoy |

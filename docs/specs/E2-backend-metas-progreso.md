@@ -451,6 +451,9 @@ El parámetro `ahora` permite fijar el reloj en los tests de API.
 | CA-DT2.1 | RB-34 | I: un cuerpo mayor de 100 kB da 413 | `tests/api/errores.test.ts` | No |
 | CA-DT2.2 | RB-34 | I: `Content-Type: application/json; charset=latin9` da 415 | `tests/api/errores.test.ts` | No |
 | CA-DT2.3 | RB-34 | I: JSON mal formado da 400. Además, revisión del README | `tests/api/errores.test.ts`, README | No |
+| CA-DT3.1 | RB-36 | I: `GET /api/videojuegos?estado=xyz` da 400 «Filtro estado no válido» con `requestId` | `tests/api/errores.test.ts` | No |
+| CA-DT3.2 | RB-36 | I: `PATCH` de un logro con `{ obtenido, extra }` da 400 «Solo se permite el campo obtenido» con `requestId` | `tests/api/errores.test.ts` | No |
+| CA-DT3.3 | RB-36 | I: un filtro válido, sin filtro y un `PATCH` de logro válido siguen respondiendo 200 | `tests/api/errores.test.ts` | No |
 
 **Reglas sin criterio de usuario** (arquitectura y contrato). **G** = comando de comprobación.
 
@@ -474,6 +477,7 @@ El parámetro `ahora` permite fijar el reloj en los tests de API.
 | T-04 | test | N `backend/vitest.config.ts`, N `backend/tests/setup/mongo.ts`, N `backend/tests/humo.test.ts`, M `backend/package.json` (script `test` y devDependencies), M `AGENTS.md` (quitar el comando provisional) |
 | T-05 | backend | N `backend/src/errors/index.ts`, M `backend/src/services/videojuegos.service.ts`, M `backend/src/services/partidas.service.ts`, M `backend/src/middlewares/errorHandler.ts`, N `backend/tests/api/errores.test.ts` |
 | T-06 | backend | M `backend/src/middlewares/errorHandler.ts`, M `README.md`, M `backend/tests/api/errores.test.ts` |
+| T-32 | backend | M `backend/src/errors/index.ts` (`FiltroEstadoInvalido`, `CamposLogroNoPermitidos`), M `backend/src/controllers/videojuegos.controller.ts`, M `backend/tests/api/errores.test.ts` |
 | T-07 | test | N `backend/tests/dominio/semana.test.ts` |
 | T-08 | backend | N `backend/src/dominio/progreso.ts` (`fechaHoyGuayaquil`, `fechaDePartida`, `semanaActual`, `horasSemana`, `porcentajeHoras`, `diasJugadosSemana`) |
 | T-09 | test | N `backend/tests/dominio/rachas.test.ts` |

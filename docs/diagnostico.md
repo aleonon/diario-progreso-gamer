@@ -172,3 +172,5 @@ El resto de E1 se mantiene sin cambios:
 ### 5.3 Deuda diferida
 
 Todos los demás puntos de la sección 3 se difieren. Cada uno tiene su motivo en `docs/backlog/E2-metas-y-rachas.md` §6.
+
+**Excepción, decidida en la fase 8:** la «Respuesta 400 inconsistente» de la sección 3 (el filtro `estado` sin `requestId`, y el mismo defecto en el cambio de logro) se pagó como **DT-3** en T-32. Junto con B4 (DT-1) y B6 (DT-2), son tres problemas pagados con el ciclo completo: criterio, test, código y verificación.
