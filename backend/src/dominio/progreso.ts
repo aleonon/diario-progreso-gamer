@@ -104,3 +104,117 @@ export function porcentajeHoras(horas: number, horasSemanales: number | null): n
 export function diasJugadosSemana(partidas: readonly PartidaDia[], semana: Semana, hoy: Fecha): number {
   return new Set(partidasDeLaSemana(partidas, semana, hoy).map(({ fecha }) => fecha)).size;
 }
+
+// ── Rachas (T-10) ───────────────────────────────────────────
+
+// Fechas distintas que ya ocurrieron (≤ hoy), ordenadas de la más antigua a la más reciente.
+// D-02: varias partidas el mismo día cuentan una vez. D-10: las fechas futuras no cuentan.
+const fechasJugadas = (fechas: readonly Fecha[], hoy: Fecha): Fecha[] =>
+  [...new Set(fechas)].filter((fecha) => fecha <= hoy).sort();
+
+/**
+ * Días consecutivos con partida que terminan hoy o, si hoy aún no hay partida, ayer (RB-25, D-01).
+ * Si no hubo partida ni hoy ni ayer, la racha es 0.
+ */
+export function rachaActual(fechas: readonly Fecha[], hoy: Fecha): number {
+  const jugadas = new Set(fechasJugadas(fechas, hoy));
+  const ayer = sumarDias(hoy, -1);
+
+  let dia: Fecha | null = jugadas.has(hoy) ? hoy : jugadas.has(ayer) ? ayer : null;
+  let racha = 0;
+
+  while (dia !== null && jugadas.has(dia)) {
+    racha++;
+    dia = sumarDias(dia, -1);
+  }
+
+  return racha;
+}
+
+/** Serie de días consecutivos más larga de todo el historial, hasta hoy (RB-26). */
+export function mejorRacha(fechas: readonly Fecha[], hoy: Fecha): number {
+  let mejor = 0;
+  let actual = 0;
+  let anterior: Fecha | null = null;
+
+  for (const fecha of fechasJugadas(fechas, hoy)) {
+    actual = anterior !== null && sumarDias(anterior, 1) === fecha ? actual + 1 : 1;
+    mejor = Math.max(mejor, actual);
+    anterior = fecha;
+  }
+
+  return mejor;
+}
+
+// ── Hitos (T-12) ────────────────────────────────────────────
+
+export interface Hito {
+  descripcion: string;
+  porcentajeObjetivo: number;
+}
+
+export interface HitoEvaluado extends Hito {
+  alcanzado: boolean;
+}
+
+/**
+ * Estado de cada hito según el avance actual del juego (RB-27, D-06).
+ * Se alcanza si avanceActual ≥ porcentajeObjetivo; si el avance baja, vuelve a pendiente.
+ * Conserva el orden y devuelve solo las claves del contrato (sin _id).
+ */
+export function evaluarHitos(hitos: readonly Hito[], avanceActual: number): HitoEvaluado[] {
+  return hitos.map(({ descripcion, porcentajeObjetivo }) => ({
+    descripcion,
+    porcentajeObjetivo,
+    alcanzado: avanceActual >= porcentajeObjetivo
+  }));
+}
+
+// ── Progreso semanal (T-18) ─────────────────────────────────
+
+export interface MetaVigente {
+  horasSemanales: number;
+  diasPorSemana: number;
+  hitos: readonly Hito[];
+}
+
+export interface EntradaProgreso {
+  partidas: readonly PartidaDia[];
+  /** Meta activa en el momento de consultar (D-04), o null si no hay (RB-28). */
+  meta: MetaVigente | null;
+  /** porcentajeAvance del resumen de E1 (RB-27). */
+  avanceActual: number;
+  hoy: Fecha;
+}
+
+export interface ProgresoSemanal {
+  semana: Semana;
+  meta: { horasSemanales: number; diasPorSemana: number } | null;
+  horasSemana: number;
+  porcentajeHoras: number | null;
+  diasJugadosSemana: number;
+  rachaActual: number;
+  mejorRacha: number;
+  hitos: HitoEvaluado[];
+}
+
+/**
+ * Compone el contrato de GET /api/videojuegos/:id/progreso-semanal (spec §5 H-6).
+ * No calcula nada propio: solo combina las funciones anteriores.
+ */
+export function calcularProgresoSemanal({ partidas, meta, avanceActual, hoy }: EntradaProgreso): ProgresoSemanal {
+  const semana = semanaActual(hoy);
+  const horas = horasSemana(partidas, semana, hoy);
+  const fechas = partidas.map(({ fecha }) => fecha);
+
+  return {
+    semana,
+    meta: meta ? { horasSemanales: meta.horasSemanales, diasPorSemana: meta.diasPorSemana } : null,
+    horasSemana: horas,
+    porcentajeHoras: porcentajeHoras(horas, meta?.horasSemanales ?? null),
+    diasJugadosSemana: diasJugadosSemana(partidas, semana, hoy),
+    rachaActual: rachaActual(fechas, hoy),
+    mejorRacha: mejorRacha(fechas, hoy),
+    hitos: meta ? evaluarHitos(meta.hitos, avanceActual) : []
+  };
+}
